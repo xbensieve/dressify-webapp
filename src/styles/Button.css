@@ -1,0 +1,25 @@
+#subscribe-button {
+  background-color: rgb(200, 0, 0);
+  color: white;
+  font-size: 14px;
+  border: none;
+  height: 36px;
+  width: 105px;
+  border-radius: 5px;
+  cursor: pointer;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-top: 10px;
+  margin-right: 400px;
+}
+
+#subscribe-button:hover {
+  opacity: 0.8;
+  box-shadow: 5px 5px 10px rgb(0, 0, 0, 0.25);
+  transition: background-color 0.3s;
+  transition: box-shadow 0.3s;
+}
+
+#subscribe-button:active {
+  opacity: 0.5;
+}
