@@ -1,0 +1,28 @@
+#welcome {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 24px;
+}
+
+#banner {
+  font-size: 14px;
+  background-color: rgb(227, 65, 64);
+  color: white;
+  text-align: center;
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
+
+.banner-img {
+  object-fit: contain;
+  object-position: right;
+  border-width: 2px;
+  border-style: solid;
+  border-color: red;
+}
+
+.search-bar {
+  font-size: 20px;
+  margin-left: 12px;
+}

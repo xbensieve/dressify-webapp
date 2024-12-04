@@ -1,7 +1,13 @@
+import "../styles/Common.css";
 const Welcome = () => {
   return (
     <>
-      <p>
+      <img
+        class="banner-img"
+        src="https://levents.asia/cdn/shop/files/BANNER_WEB_1.jpg?v=1728379605&width=1500"
+        alt=""
+      ></img>
+      <p id="welcome">
         UNIQUELY CLASSIC CAMPAIGN | FW24 “Mỗi cá thể là một màu sắc riêng
         biệt!”, đó cũng là nguồn cảm hứng lớn nhất để phát triển nên bộ sưu tập
         Uniquely Classic. Với châm ngôn bất biến tôn vinh những giá trị độc bản
