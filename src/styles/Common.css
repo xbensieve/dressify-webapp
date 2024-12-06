@@ -3,6 +3,7 @@
   font-size: 18px;
   font-weight: bold;
   line-height: 24px;
+  display: inline-block;
 }
 
 #banner {
@@ -20,9 +21,16 @@
   border-width: 2px;
   border-style: solid;
   border-color: red;
+  display: block;
 }
 
 .search-bar {
   font-size: 20px;
   margin-left: 12px;
+  display: block;
+}
+
+.div-example {
+  display: inline-block;
+  width: 300px;
 }

@@ -21,6 +21,49 @@ const Welcome = () => {
         biệt và sự tự tin, để mỗi cá nhân trở thành “classic” theo cách riêng
         của mình.
       </p>
+      <div
+        style={{
+          display: "grid",
+          "grid-template-columns": "100px 100px",
+        }}
+      >
+        <div
+          style={{
+            "background-color": "red",
+          }}
+        >
+          div 1
+        </div>
+        <div
+          style={{
+            "background-color": "pink",
+          }}
+        >
+          div 2
+        </div>
+      </div>
+      <div
+        style={{
+          display: "grid",
+          "margin-top": "10px",
+          "grid-template-columns": "100px 100px",
+        }}
+      >
+        <div
+          style={{
+            "background-color": "red",
+          }}
+        >
+          div 1
+        </div>
+        <div
+          style={{
+            "background-color": "pink",
+          }}
+        >
+          div 2
+        </div>
+      </div>
     </>
   );
 };
