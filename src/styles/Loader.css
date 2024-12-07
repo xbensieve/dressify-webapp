@@ -1,0 +1,55 @@
+.loader {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.loader div {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: black;
+  animation: bounce 1.5s infinite ease-in-out;
+}
+
+.a1 {
+  animation-delay: 0s;
+  opacity: 1; /* Fully opaque */
+}
+
+.a2 {
+  animation-delay: 0.2s;
+  opacity: 0.8; /* Slightly faded */
+}
+
+.a3 {
+  animation-delay: 0.4s;
+  opacity: 0.6; /* More faded */
+}
+
+.a4 {
+  animation-delay: 0.6s;
+  opacity: 0.4; /* Nearly transparent */
+}
+
+.a5 {
+  animation-delay: 0.8s;
+  opacity: 0.2; /* Mostly transparent */
+}
+
+@keyframes bounce {
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
