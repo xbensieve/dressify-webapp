@@ -1,150 +1,139 @@
-.header {
-  height: 55px;
+.logo {
   width: 100%;
-  position: fixed;
-  top: 0;
-  background-color: #efefef;
-  overflow: hidden;
+  height: 100%;
+  max-height: 35px;
+  max-width: 35px;
+  object-fit: contain;
+}
+
+.brand-text {
+  width: 100%;
+  font-family: "Arial", sans-serif;
+  margin-left: 10px;
+  color: white;
+  max-width: 30px;
+}
+
+.logo-toggle {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-
-.left-section {
-  width: 150px;
   align-items: center;
+  gap: 5px;
+  transition: transform 0.3s ease-in-out;
 }
 
-.hamburger-icon {
-  height: 30px;
-  width: 30px;
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
-.hamburger-menu {
-  border-style: none;
+.logo-toggle:hover {
+  transform: scale(1.1);
   cursor: pointer;
-}
-
-.hamburger-menu:hover {
-  opacity: 0.5;
-  transition-duration: 0.3s;
-  transform: scale(1.1, 1.1);
-}
-
-.hamburger-menu:active {
-  opacity: 0.7;
-  transition-duration: 0.3s;
-}
-
-.middle-section {
-  flex: 1;
-  margin-left: 70px;
-  margin-right: 35px;
-  max-width: 300px;
-  display: flex;
-  align-items: center;
-}
-
-.form-search {
-  display: grid;
-  grid-template-columns: 300px 50px;
-  column-gap: 2px;
 }
 
 .search-bar {
-  flex: 1;
-  height: 30px;
-  font-size: 12px;
-  padding-left: 15px;
-  border-width: 0.5px;
-  border-style: solid;
-  border-color: lightgray;
-  border-radius: 15px;
-  transition-duration: 0.3s;
+  height: 40px;
+  font-size: 16px;
+  padding-left: 20px;
+  flex-grow: 1;
+  width: 100%;
+  min-width: 500px;
+  max-width: 600px;
+  border: 0.2px solid #ddd;
+  border-radius: 20px 0 40px 20px;
+  transition: all 0.3s ease;
+  outline: none;
 }
 
-.search-bar:placeholder {
+.search-bar::placeholder {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  font-size: 12px;
-}
-
-input:focus {
-  font-weight: bold;
-}
-
-.search-icon {
-  height: 30px;
-  width: 30px;
-}
-
-.search-button {
-  width: 30px;
-  height: 30px;
-  border-style: none;
-  cursor: pointer;
-}
-
-.search-button:hover {
-  opacity: 0.5;
-  transition-duration: 0.5s;
-  transform: scale(1.1, 1.1);
-}
-
-.search-button:active {
-  opacity: 0.7;
-  transition-duration: 0.3s;
-}
-
-.right-section {
-  width: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-}
-
-.right-grid {
-  display: grid;
-  grid-template-columns: 50px 50px;
-  column-gap: 10px;
-}
-
-.cart-button {
-  border-style: none;
-  cursor: pointer;
-}
-.cart-button:hover {
-  opacity: 0.7;
-  transform: scale(1.1, 1.1);
-  transition-duration: 0.5s;
-}
-
-.cart-icon {
-  height: 30px;
-  width: 30px;
+  font-size: 15px;
+  color: #aaa;
   opacity: 0.8;
 }
 
-.profile-button {
-  border-style: none;
+.search-icon {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.search-icon:hover {
+  opacity: 0.8;
+  transform: scale(1.1);
+}
+
+.search-button {
+  height: 40px;
+  width: 40px;
+  border: none;
+  background-color: #fff;
+  border-left: 1px solid lightgray;
+  border-radius: 20px 20px 20px 0;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
 }
 
-.profile-button:hover {
-  opacity: 0.7;
-  transform: scale(1.1, 1.1);
-  transition-duration: 0.5s;
+.search-button:hover {
+  background-color: #f1f1f1;
 }
 
-.profile-picture {
-  flex: 1;
-  height: 30px;
+.search-button:active {
+  opacity: 0.8;
+}
+
+.cart-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.cart-button:hover {
+  opacity: 0.8;
+  transform: scale(1.1);
+}
+
+.cart-icon {
+  max-width: 30px;
+  max-height: 30px;
+  object-fit: contain;
+}
+
+.user-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.user-button:hover {
+  opacity: 0.8;
+  transform: scale(1.1);
 }
 
 .user-icon {
-  flex: 1;
-  height: 30px;
+  max-width: 30px;
+  max-height: 30px;
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .search-bar {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .navbar-nav {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .logo-toggle {
+    justify-content: center;
+  }
 }
