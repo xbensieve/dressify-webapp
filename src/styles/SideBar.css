@@ -11,6 +11,7 @@
   transition: all 0.3s ease-in-out;
   z-index: 100;
   padding: 20px;
+  transition: all 0.3s ease;
 }
 
 /* Grid layout for filter section */
@@ -53,7 +54,11 @@
   list-style-type: none;
   padding-left: 15px;
 }
-
+.filter-group,
+.filter-option {
+  opacity: 1;
+  transition: opacity 0.3s ease-out; /* Smooth opacity transition */
+}
 li {
   display: flex;
   font-size: 0.9rem;

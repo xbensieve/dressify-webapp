@@ -1,18 +1,35 @@
+import React, { useState } from "react";
 import "../styles/SideBar.css";
 import FilterIcon from "../assets/filter.png";
 import DownIcon from "../assets/down.png";
+
 const SideBar = () => {
+  const [isCollapsed, setIsCollapsed] = useState(false); // State to manage the collapse/expand
+
+  // Toggle collapse/expand state
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
   return (
     <>
-      <div class="sidebar">
+      <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
         <div class="filter-grid">
           <div class="filter">
             <img class="filter-icon" src={FilterIcon} alt="" />
           </div>
           <div class="filter-status">Bộ lọc tìm kiếm</div>
         </div>
-        <div class="filter-group">Theo Danh Mục</div>
-        <ul class="filter-option">
+        {/* Toggle button to collapse/expand */}
+        <button
+          className="btn btn-outline-primary d-flex align-items-center"
+          onClick={toggleSidebar}
+        >
+          {isCollapsed ? "Mở Bộ Lọc" : "Thu Gọn Bộ Lọc"}
+        </button>
+        <div className={`filter-group ${isCollapsed ? "d-none" : ""}`}>
+          Theo Danh Mục
+        </div>
+        <ul className={`filter-option ${isCollapsed ? "d-none" : ""}`}>
           <li>
             <input type="checkbox" />
             Áo thun
@@ -37,8 +54,10 @@ const SideBar = () => {
           </li>
         </ul>
         <hr></hr>
-        <div class="filter-group">Nơi Bán</div>
-        <ul class="filter-option">
+        <div className={`filter-group ${isCollapsed ? "d-none" : ""}`}>
+          Nơi Bán
+        </div>
+        <ul className={`filter-option ${isCollapsed ? "d-none" : ""}`}>
           <li>
             <input type="checkbox" />
             Hà Nội
@@ -63,8 +82,10 @@ const SideBar = () => {
           </li>
         </ul>
         <hr></hr>
-        <div class="filter-group">Thương Hiệu</div>
-        <ul class="filter-option">
+        <div className={`filter-group ${isCollapsed ? "d-none" : ""}`}>
+          Thương Hiệu
+        </div>
+        <ul className={`filter-option ${isCollapsed ? "d-none" : ""}`}>
           <li>
             <input type="checkbox" />
             AVOCADO
