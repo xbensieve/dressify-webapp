@@ -1,14 +1,20 @@
-p {
-  font-family: Roboto, Arial;
-  margin-top: 0;
-  margin-bottom: 0;
+.product-preview {
+  background-color: #ffffff; /* White background for a clean card look */
+  border-radius: 10px; /* Rounded corners for the card */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-preview:hover {
+  transform: translateY(-5px); /* Slight lift on hover */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
 }
 
 .product-picture {
-  max-width: 100%;
-  height: 400px;
-  cursor: pointer;
+  width: 100%;
+  height: 250px;
   border-radius: 5px;
+  object-fit: cover; /* Ensure images are properly fitted */
 }
 
 .product-picture:hover {
@@ -19,15 +25,26 @@ p {
 }
 
 .product-title {
-  font-size: 20px;
-  margin-top: 0;
-  font-weight: 500;
-  line-height: 20px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0;
+  color: #333;
 }
 
 .product-info-grid {
+  width: 100%;
   display: grid;
   grid-template-columns: 50px 1fr;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .cart-picture {
@@ -54,18 +71,52 @@ p {
 }
 
 .picture-row {
+  width: 100%;
   margin-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0; /* Separator line */
+  padding-bottom: 10px;
 }
 
+/* Product Grid Styles */
 .product-grid {
   display: grid;
   position: relative;
-  grid-template-columns: 1fr 1fr 1fr;
-  column-gap: 40px;
-  row-gap: 40px;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  column-gap: 20px;
+  row-gap: 20px;
   padding-top: 50px;
   margin-top: 50px;
-  margin-left: 300px;
   margin-right: 80px;
-  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on small screens */
+    margin-top: 300px;
+  }
+
+  .product-title {
+    font-size: 18px; /* Smaller text for small screens */
+  }
+
+  .product-picture {
+    height: 250px; /* Adjust image height on smaller screens */
+  }
+}
+
+/* Responsive Layout for Extra Small Screens */
+@media (max-width: 480px) {
+  .product-grid {
+    grid-template-columns: 1fr; /* 1 column on extra small screens */
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+
+  .product-title {
+    font-size: 16px; /* Adjust title font size on very small screens */
+  }
+
+  .product-picture {
+    height: 200px; /* Further adjust image height on very small screens */
+  }
 }

@@ -1,23 +1,21 @@
-/* Sidebar */
 .sidebar {
   position: fixed;
   left: 0;
   top: 60px;
   bottom: 0;
   width: 250px;
-  background-color: #ffffff; /* White background for a clean look */
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for a professional feel */
-  overflow-y: auto;
+  background-color: #ffffff;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  overflow-y: scroll;
   transition: all 0.3s ease-in-out;
   z-index: 100;
   padding: 20px;
   transition: all 0.3s ease;
 }
 
-/* Grid layout for filter section */
 .filter-grid {
   display: grid;
-  grid-template-columns: 10px auto; /* Adjusted to improve layout */
+  grid-template-columns: 10px auto;
   margin-bottom: 15px;
 }
 
@@ -30,35 +28,39 @@
   display: block;
   height: 25px;
   width: 20px;
-  margin-bottom: 5px; /* Space between icon and text */
+  margin-bottom: 5px;
 }
 
 .filter-status {
   text-transform: uppercase;
   font-weight: 600;
   font-size: 1rem;
-  color: #333; /* Dark text for readability */
+  color: #333;
 }
 
-/* Filter group title */
+.toggle-button:hover {
+  transition: background-color 0.3s ease-in-out;
+}
+
 .filter-group {
   font-size: 1rem;
   font-weight: 500;
-  color: #444; /* Slightly lighter color for group titles */
+  color: #444;
   margin: 15px 0 10px;
   padding-right: 15px;
 }
 
-/* Filter option styling */
 .filter-option {
   list-style-type: none;
   padding-left: 15px;
 }
+
 .filter-group,
 .filter-option {
   opacity: 1;
-  transition: opacity 0.3s ease-out; /* Smooth opacity transition */
+  transition: opacity 0.3s ease-out;
 }
+
 li {
   display: flex;
   font-size: 0.9rem;
@@ -103,10 +105,9 @@ li input {
 }
 
 .toggle-button-grid:hover .down-icon {
-  transform: rotate(180deg); /* Rotate the down icon when hovered */
+  transform: rotate(180deg);
 }
 
-/* Horizontal line style */
 hr {
   width: 90%;
   border: 0;
@@ -114,12 +115,11 @@ hr {
   margin: 15px 0;
 }
 
-/* Media Queries for Responsive Design */
-
-/* Tablet: Screen width up to 768px */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 230px; /* Slightly narrower on tablets */
+@media (max-width: 1080px) {
+  .sidebar,
+  sidebar collapsed {
+    width: 100%;
+    height: fit-content;
   }
 
   .filter-status {
@@ -132,10 +132,12 @@ hr {
 
   li {
     font-size: 0.875rem;
+    display: inline;
   }
 
   .toggle-button-grid {
-    padding: 6px 12px; /* Adjust padding on tablets */
+    padding: 6px 12px;
+    display: inline;
   }
 
   .toggle-text {
@@ -143,16 +145,16 @@ hr {
   }
 }
 
-/* Mobile: Screen width up to 480px */
 @media (max-width: 480px) {
   .sidebar {
-    width: 100%; /* Full width on mobile */
+    width: 100%;
     position: relative;
     top: 0;
   }
 
   .filter-grid {
     grid-template-columns: 30px auto;
+    align-items: center;
   }
 
   .filter-status {

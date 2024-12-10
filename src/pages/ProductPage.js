@@ -49,7 +49,7 @@ const ProductPage = () => {
   }
 
   return (
-    <div className="product-container">
+    <div className="product-container container">
       <div className="product-grid">
         {products.map((product) => (
           <div key={product.dynamicId} className="product-preview">
@@ -66,6 +66,7 @@ const ProductPage = () => {
               </div>
               <div className="product-info">
                 <p className="product-title">{product.title}</p>
+                <p className="card-text">$19.00</p>
               </div>
             </div>
           </div>

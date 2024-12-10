@@ -13,7 +13,7 @@ const SideBar = () => {
   return (
     <>
       <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
-        <div class="filter-grid">
+        <div class="filter-grid mx-auto">
           <div class="filter">
             <img class="filter-icon" src={FilterIcon} alt="" />
           </div>
@@ -21,7 +21,7 @@ const SideBar = () => {
         </div>
         {/* Toggle button to collapse/expand */}
         <button
-          className="btn btn-outline-primary d-flex align-items-center"
+          className="toggle-button btn btn-outline-primary d-flex align-items-center mx-auto rounded-pill"
           onClick={toggleSidebar}
         >
           {isCollapsed ? "Mở Bộ Lọc" : "Thu Gọn Bộ Lọc"}
