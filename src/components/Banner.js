@@ -1,4 +1,3 @@
-import "../styles/Common.css";
 const Banner = () => {
   return (
     <p id="banner">

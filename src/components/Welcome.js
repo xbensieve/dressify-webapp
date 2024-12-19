@@ -1,4 +1,3 @@
-import "../styles/Common.css";
 import { useNavigate } from "react-router";
 const Welcome = () => {
   let navigate = useNavigate();

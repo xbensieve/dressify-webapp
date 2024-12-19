@@ -1,12 +1,12 @@
 import React from "react";
-import Welcome from "../components/Welcome";
-import Banner from "../components/Banner";
+import Slider from "../components/Slider";
+import CategorySection from "../components/CategorySection";
 const HomePage = () => {
   return (
-    <div>
-      <Banner />
-      <Welcome />
-    </div>
+    <>
+      <Slider />
+      <CategorySection />
+    </>
   );
 };
 

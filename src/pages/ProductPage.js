@@ -1,76 +1,45 @@
 import React, { useState, useEffect } from "react";
-import "../styles/Product.css";
-import Hoodie from "../assets/hoodie.jpg";
-import Bomber from "../assets/bomber.png";
-import KakiJacket from "../assets/kakijacket.jpg";
-import Cart from "../assets/cart.png";
-import Loader from "../components/Loader";
+import axios from "axios";
 
 const ProductPage = () => {
-  const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
-  const [arraySize, setArraySize] = useState(9);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-
-      const baseProducts = [
-        {
-          id: 1,
-          img: Hoodie,
-          title: "Áo hoodie nam nỉ bông",
-        },
-        {
-          id: 2,
-          img: KakiJacket,
-          title: "Áo khoác F23 KAKI JACKET chất",
-        },
-        {
-          id: 3,
-          img: Bomber,
-          title: "Áo khoác bomber nam nữ unisex đẹp",
-        },
-      ];
-
-      const dynamicProducts = Array.from({ length: arraySize }, (_, index) => {
-        const baseIndex = index % baseProducts.length;
-        return { ...baseProducts[baseIndex], dynamicId: index + 1 };
-      });
-
-      setProducts(dynamicProducts);
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, [arraySize]);
-
-  if (loading) {
-    return <Loader />;
-  }
+    const fetchProductData = async () => {
+      try {
+        const response = await axios.get(
+          "https://675fb82b1f7ad242699916db.mockapi.io/api/v1/product"
+        );
+        setProducts(response.data);
+      } catch (error) {
+        console.error("Error fetching product data:", error);
+      }
+    };
+    fetchProductData();
+  }, []);
 
   return (
-    <div className="product-container container">
-      <div className="product-grid">
-        {products.map((product) => (
-          <div key={product.dynamicId} className="product-preview">
-            <div className="picture-row">
+    <div className="bg-white">
+      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+        <h2 className="sr-only">Products</h2>
+
+        <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+          {products.map((product) => (
+            <a key={product.id} href={product.href} className="group">
               <img
-                className="product-picture"
-                src={product.img}
-                alt={product.title}
+                alt={product.imageAlt}
+                src={product.picture}
+                className="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-[7/8]"
               />
-            </div>
-            <div className="product-info-grid">
-              <div className="cart-picture">
-                <img className="cart" src={Cart} alt="cart" />
-              </div>
-              <div className="product-info">
-                <p className="product-title">{product.title}</p>
-                <p className="card-text">$19.00</p>
-              </div>
-            </div>
-          </div>
-        ))}
+              <h3 className="mt-4 text-sm text-gray-700 truncate">
+                {product.name}
+              </h3>
+              <p className="mt-1 text-lg font-medium text-gray-900">
+                {product.price}
+              </p>
+            </a>
+          ))}
+        </div>
       </div>
     </div>
   );
