@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+import { useNavigate } from "react-router-dom";
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-
+  const navigate = useNavigate();
   // Function to fetch product data
   const fetchProductData = async (page = 1) => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `https://script.google.com/macros/s/AKfycbxLN8crEvsNgv9zbBg38tu0ftSKqfMSMydEFh7sI0utshLagEQPygX64e98SkvFlqDV/exec?action=read&path=products&page=${page}&limit=5`
+        `https://script.google.com/macros/s/AKfycbyk5tDOKG6PXyddvJH1-eJ45lipi_IBjg7qqueELxfII7YAiC3QV9BpxggCYli6KULF/exec?action=read&path=products&page=${page}&limit=5`
       );
       setProducts(response.data.data);
       setCurrentPage(response.data.currentPage);
       setTotalPages(response.data.totalPages);
+      console.log(products);
     } catch (error) {
       console.error("Error fetching product data:", error);
     } finally {
@@ -33,7 +34,10 @@ const ProductPage = () => {
       setCurrentPage(page);
     }
   };
-
+  const handleProductClick = (productId) => {
+    // Navigate to the detail page without exposing productId in the URL
+    navigate("/detail", { state: { productId } });
+  };
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
@@ -45,7 +49,11 @@ const ProductPage = () => {
           <div>
             <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
               {products.map((product) => (
-                <a key={product.ProductId} href="#" className="group">
+                <div
+                  key={product.ProductId}
+                  onClick={() => handleProductClick(product.ProductId)} // Handle click
+                  className="group cursor-pointer"
+                >
                   <img
                     alt={product.ProductName}
                     src={product.ImageUrl}
@@ -57,7 +65,7 @@ const ProductPage = () => {
                   <p className="mt-1 text-lg font-medium text-gray-900">
                     {new Intl.NumberFormat().format(product.Price)} VND
                   </p>
-                </a>
+                </div>
               ))}
             </div>
 
