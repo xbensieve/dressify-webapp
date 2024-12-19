@@ -3,17 +3,19 @@ import React, { useState, useEffect } from "react";
 const slides = [
   {
     id: 1,
-    imgSrc: "https://cf.shopee.vn/file/vn-11134258-7ras8-m3x4wg1da3zw0d_xxhdpi",
+    imgSrc:
+      "https://rare-gallery.com/uploads/posts/1152281-women-model-simple-background-short-hair-Asian-white-dress-dress-fashion-hands-on-hips-wedding-dress-spring-clothing-Masami-Nagasawa-bride-dance-arm-gown-photo-shoot-ab.jpg",
     alt: "First Slide",
   },
   {
     id: 2,
-    imgSrc: "https://cf.shopee.vn/file/vn-11134258-7ras8-m3vndl5bbq9h76_xxhdpi",
+    imgSrc:
+      "https://static.vecteezy.com/system/resources/previews/032/949/537/non_2x/tshirt-mockup-template-front-and-back-view-black-man-wearing-blank-tshirt-male-model-wearing-a-dark-navy-blue-color-solid-t-shirt-on-a-white-background-front-view-and-back-view-ai-generated-free-photo.jpg",
     alt: "Second Slide",
   },
   {
     id: 3,
-    imgSrc: "https://cf.shopee.vn/file/vn-11134258-7ras8-m3aazcwgxo8ced_xxhdpi",
+    imgSrc: "https://images6.alphacoders.com/919/919104.jpg",
     alt: "Third Slide",
   },
 ];
