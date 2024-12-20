@@ -10,7 +10,7 @@ const slides = [
   {
     id: 2,
     imgSrc:
-      "https://static.vecteezy.com/system/resources/previews/032/949/537/non_2x/tshirt-mockup-template-front-and-back-view-black-man-wearing-blank-tshirt-male-model-wearing-a-dark-navy-blue-color-solid-t-shirt-on-a-white-background-front-view-and-back-view-ai-generated-free-photo.jpg",
+      "https://images.pexels.com/photos/432059/pexels-photo-432059.jpeg?cs=srgb&dl=pexels-rfera-432059.jpg&fm=jpg",
     alt: "Second Slide",
   },
   {

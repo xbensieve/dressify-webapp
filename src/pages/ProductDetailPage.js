@@ -6,7 +6,8 @@ const ProductDetailPage = () => {
   const { productId } = location.state || {}; // Retrieve productId from state
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const [imageUrls, setImageUrls] = useState([]);
+  const [currentImage, setCurrentImage] = useState("");
   // Function to fetch product detail
   const fetchProductDetail = async () => {
     setLoading(true);
@@ -14,7 +15,11 @@ const ProductDetailPage = () => {
       const response = await axios.get(
         `https://script.google.com/macros/s/AKfycbyk5tDOKG6PXyddvJH1-eJ45lipi_IBjg7qqueELxfII7YAiC3QV9BpxggCYli6KULF/exec?action=read&path=products&productId=${productId}`
       );
-      setProduct(response.data.data);
+      const fetchedProduct = response.data.data;
+      setProduct(fetchedProduct);
+      const urls = fetchedProduct.ImageUrl.split(",");
+      setImageUrls(urls);
+      setCurrentImage(urls[0].trim());
     } catch (error) {
       console.error("Error fetching product detail:", error);
     } finally {
@@ -26,7 +31,7 @@ const ProductDetailPage = () => {
     if (productId) {
       fetchProductDetail();
     }
-  }, [productId]); // Refetch when productId changes
+  }, [productId]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -36,22 +41,23 @@ const ProductDetailPage = () => {
     return <div>Product not found</div>;
   }
   return (
-    <div class="font-sans bg-white">
-      <div class="p-4 lg:max-w-7xl max-w-4xl mx-auto">
-        <div class="grid items-start grid-cols-1 lg:grid-cols-5 gap-12 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] p-6 rounded-lg">
-          <div class="lg:col-span-3 w-full lg:sticky top-0 text-center">
-            <div class="px-4 py-10 rounded-lg shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] relative">
+    <div className="font-sans bg-white">
+      <div className="p-4 lg:max-w-5xl max-w-3xl mx-auto">
+        <div className="grid items-start grid-cols-1 lg:grid-cols-5 gap-8 shadow-lg p-6 rounded-lg">
+          {/* Main Image Section */}
+          <div className="lg:col-span-3 w-full text-center">
+            <div className="p-4 rounded-lg shadow-lg relative">
               <img
-                src={product.ImageUrl}
+                src={currentImage}
                 alt="Product"
-                class="w-3/4 rounded object-cover mx-auto"
+                className="w-full h-64 max-w-md mx-auto object-contain rounded-lg"
               />
-              <button type="button" class="absolute top-4 right-4">
+              <button type="button" className="absolute top-4 right-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="20px"
+                  width="24px"
                   fill="#ccc"
-                  class="mr-1 hover:fill-[#333]"
+                  className="hover:fill-gray-700"
                   viewBox="0 0 64 64"
                 >
                   <path
@@ -62,35 +68,24 @@ const ProductDetailPage = () => {
               </button>
             </div>
 
-            <div class="mt-6 flex flex-wrap justify-center gap-6 mx-auto">
-              <div class="w-24 h-20 flex items-center justify-center rounded-lg p-4 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] cursor-pointer">
-                <img
-                  src="https://readymadeui.com/images/laptop2.webp"
-                  alt="Product2"
-                  class="w-full"
-                />
-              </div>
-              <div class="w-24 h-20 flex items-center justify-center rounded-lg p-4 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] cursor-pointer">
-                <img
-                  src="https://readymadeui.com/images/laptop3.webp"
-                  alt="Product2"
-                  class="w-full"
-                />
-              </div>
-              <div class="w-24 h-20 flex items-center justify-center rounded-lg p-4 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] cursor-pointer">
-                <img
-                  src="https://readymadeui.com/images/laptop4.webp"
-                  alt="Product2"
-                  class="w-full"
-                />
-              </div>
-              <div class="w-24 h-20 flex items-center justify-center rounded-lg p-4 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] cursor-pointer">
-                <img
-                  src="https://readymadeui.com/images/laptop5.webp"
-                  alt="Product2"
-                  class="w-full"
-                />
-              </div>
+            <div className="mt-6 flex flex-wrap justify-center gap-4">
+              {imageUrls.map((url, index) => (
+                <div
+                  key={index}
+                  onClick={() => setCurrentImage(url.trim())}
+                  className={`w-28 h-28 flex items-center justify-center rounded-lg shadow-md cursor-pointer border ${
+                    currentImage === url.trim()
+                      ? "border-blue-500"
+                      : "border-gray-300"
+                  } hover:scale-105 transform transition-all duration-300`}
+                >
+                  <img
+                    src={url.trim()}
+                    alt={`Thumbnail ${index + 1}`}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </div>
+              ))}
             </div>
           </div>
 
@@ -144,34 +139,27 @@ const ProductDetailPage = () => {
             </div>
 
             <div class="flex flex-wrap gap-4 mt-8">
-              <p class="text-gray-800 text-3xl font-bold">
-                {product.Price} VND
-              </p>
+              <p class="text-gray-800 text-3xl font-bold">${product.Price}</p>
               <p class="text-gray-400 text-base">
-                <strike>190000 VND</strike>{" "}
+                <strike>$190.00</strike>{" "}
                 <span class="text-sm ml-1">Tax included</span>
               </p>
             </div>
 
-            <div class="mt-8">
-              <h3 class="text-xl font-bold text-gray-800">Choose a Color</h3>
-              <div class="flex flex-wrap gap-3 mt-4">
-                <button
-                  type="button"
-                  class="w-10 h-10 bg-black border-2 border-white hover:border-gray-800 rounded-full shrink-0 transition-all"
-                ></button>
-                <button
-                  type="button"
-                  class="w-10 h-10 bg-gray-300 border-2 border-white hover:border-gray-800 rounded-full shrink-0 transition-all"
-                ></button>
-                <button
-                  type="button"
-                  class="w-10 h-10 bg-gray-100 border-2 border-white hover:border-gray-800 rounded-full shrink-0 transition-all"
-                ></button>
-                <button
-                  type="button"
-                  class="w-10 h-10 bg-blue-400 border-2 border-white hover:border-gray-800 rounded-full shrink-0 transition-all"
-                ></button>
+            <div className="mt-8">
+              <h3 className="text-xl font-bold text-gray-800">
+                Choose a Color
+              </h3>
+              <div className="flex flex-wrap gap-3 mt-4">
+                {product.Color.split(",").map((color) => (
+                  <button
+                    key={color.trim()}
+                    type="button"
+                    className="px-4 py-2 bg-gray-100 border-2 border-gray-300 text-gray-800 rounded-md font-medium text-lg transition-all hover:bg-gray-200"
+                  >
+                    {color.trim()} {/* Display the color name as text */}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -194,54 +182,42 @@ const ProductDetailPage = () => {
 
         <div class="mt-16 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] p-6">
           <h3 class="text-xl font-bold text-gray-800 text-center mb-6">
-            Product Information
+            Product Details
           </h3>
           <ul class="space-y-6 text-gray-800">
             <li class="text-sm flex justify-between items-center">
-              <span class="font-semibold w-1/2">TYPE</span>
-              <span class="w-1/2 text-right">{product.Category}</span>
+              <span class="font-semibold w-1/2">Fabric type</span>
+              <span class="w-1/2 text-right">{product.FabricType}</span>
             </li>
             <li class="text-sm flex justify-between items-center">
-              <span class="font-semibold w-1/2">RAM</span>
-              <span class="w-1/2 text-right">16 GB</span>
+              <span class="font-semibold w-1/2">Care Instructions</span>
+              <span class="w-1/2 text-right">{product.CareInstructions}</span>
             </li>
             <li class="text-sm flex justify-between items-center">
-              <span class="font-semibold w-1/2">SSD</span>
-              <span class="w-1/2 text-right">1000 GB</span>
+              <span class="font-semibold w-1/2">Origin</span>
+              <span class="w-1/2 text-right">{product.Origin}</span>
             </li>
             <li class="text-sm flex justify-between items-center">
-              <span class="font-semibold w-1/2">PROCESSOR TYPE</span>
-              <span class="w-1/2 text-right">INTEL CORE I7-12700H</span>
-            </li>
-            <li class="text-sm flex justify-between items-center">
-              <span class="font-semibold w-1/2">PROCESSOR SPEED</span>
-              <span class="w-1/2 text-right">2.3 - 4.7 GHz</span>
-            </li>
-            <li class="text-sm flex justify-between items-center">
-              <span class="font-semibold w-1/2">DISPLAY SIZE (INCH)</span>
-              <span class="w-1/2 text-right">16.0</span>
-            </li>
-            <li class="text-sm flex justify-between items-center">
-              <span class="font-semibold w-1/2">DISPLAY SIZE (CM)</span>
-              <span class="w-1/2 text-right">40.64 cm</span>
-            </li>
-            <li class="text-sm flex justify-between items-center">
-              <span class="font-semibold w-1/2">DISPLAY TYPE</span>
-              <span class="w-1/2 text-right">OLED, TOUCHSCREEN, 120 Hz</span>
-            </li>
-            <li class="text-sm flex justify-between items-center">
-              <span class="font-semibold w-1/2">DISPLAY RESOLUTION</span>
-              <span class="w-1/2 text-right">2880x1620</span>
+              <span class="font-semibold w-1/2">Closure Type</span>
+              <span class="w-1/2 text-right">{product.ClosureType}</span>
             </li>
           </ul>
         </div>
-
+        <div className="mt-8 p-4 bg-gray-100 rounded-lg shadow-md">
+          <h3 className="text-xl font-bold text-gray-800">
+            Product Description
+          </h3>
+          <p className="mt-4 text-gray-700">
+            {product.Description ||
+              "No description available for this product."}
+          </p>
+        </div>
         <div class="mt-16 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] p-6">
           <h3 class="text-xl font-bold text-gray-800">Reviews(10)</h3>
           <div class="grid md:grid-cols-2 gap-12 mt-4">
             <div class="space-y-3">
               <div class="flex items-center">
-                <p class="text-sm text-gray-800 font-bold">5.0</p>
+                <p class="text-sm text-gray-800 font-bold">{product.Rating}</p>
                 <svg
                   class="w-5 fill-blue-600 ml-1"
                   viewBox="0 0 14 13"

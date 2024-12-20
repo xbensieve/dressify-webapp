@@ -12,7 +12,7 @@ const ProductPage = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `https://script.google.com/macros/s/AKfycbyk5tDOKG6PXyddvJH1-eJ45lipi_IBjg7qqueELxfII7YAiC3QV9BpxggCYli6KULF/exec?action=read&path=products&page=${page}&limit=5`
+        `https://script.google.com/macros/s/AKfycbyk5tDOKG6PXyddvJH1-eJ45lipi_IBjg7qqueELxfII7YAiC3QV9BpxggCYli6KULF/exec?action=read&path=products&page=${page}&limit=8`
       );
       setProducts(response.data.data);
       setCurrentPage(response.data.currentPage);
@@ -56,14 +56,14 @@ const ProductPage = () => {
                 >
                   <img
                     alt={product.ProductName}
-                    src={product.ImageUrl}
+                    src={product.ImageUrl.split(",")[0].trim()}
                     className="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-[7/8]"
                   />
                   <h3 className="mt-4 text-sm text-gray-700 truncate">
                     {product.ProductName}
                   </h3>
                   <p className="mt-1 text-lg font-medium text-gray-900">
-                    {new Intl.NumberFormat().format(product.Price)} VND
+                    ${new Intl.NumberFormat().format(product.Price)}
                   </p>
                 </div>
               ))}

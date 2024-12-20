@@ -5,7 +5,6 @@ import ProductPage from "./pages/ProductPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import MainLayout from "./components/MainLayout";
 import LoginPage from "./pages/LoginPage";
-import ProductDetail from "./pages/ProductDetail";
 function App() {
   return (
     <div className="App">
