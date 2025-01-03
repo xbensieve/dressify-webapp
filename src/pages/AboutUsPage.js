@@ -8,13 +8,13 @@ const AboutUsPage = () => {
               <div class="pt-24 lg:justify-center sm:justify-end justify-start items-start gap-2.5 flex">
                 <img
                   class="rounded-xl object-cover"
-                  src="https://example.com/clothing-image1.jpg"
+                  src="https://www.instyle.com/thmb/5QKqC0VHnLZaViKofSuQDXAcU54=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/is-best-online-clothing-brands-tout-9dd0a27d621c45dcaaa52274d3dd8dc6.jpg"
                   alt="About Us - Clothing"
                 />
               </div>
               <img
                 class="sm:ml-0 ml-auto rounded-xl object-cover"
-                src="https://example.com/clothing-image2.jpg"
+                src="https://www.sanctuaryclothing.com/cdn/shop/files/OurStory-Explore_NAVBLOCKS__720x1068_1dea101b-301f-49ed-bef1-2b14e84f7108.png?v=1733940170"
                 alt="About Us - Fashion"
               />
             </div>
@@ -152,7 +152,7 @@ const AboutUsPage = () => {
               <div class="sm:w-[564px] w-full sm:h-[646px] h-full sm:bg-gray-100 rounded-3xl sm:border border-gray-200 relative">
                 <img
                   class="sm:mt-5 sm:ml-5 w-full h-full rounded-3xl object-cover"
-                  src="https://example.com/clothing-image3.jpg"
+                  src="https://spiritclothing.ie/cdn/shop/files/spirit_clothing_story_6fb11e74-44c2-47a3-af89-84ba60f8c8c2.jpg?v=1668557396"
                   alt="Fashion Store"
                 />
               </div>
