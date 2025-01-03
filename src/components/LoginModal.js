@@ -1,9 +1,34 @@
 import React, { useState } from "react";
-
+import loginApi from "../api/loginApi";
 const LoginModal = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [isLoginModal, setIsLoginModal] = useState(false);
   const [isRegisterModal, setIsRegisterModal] = useState(false);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!username || !password) {
+      setError("Both fields are required");
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await loginApi(username, password);
+      if (response.success) {
+        localStorage.setItem("access_token", response.access_token);
+        window.location.href = "/";
+      } else {
+        setError(response.message);
+      }
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <>
       <button
@@ -50,21 +75,22 @@ const LoginModal = () => {
               </button>
             </div>
             <div className="p-4 md:p-5">
-              <form className="space-y-4" action="#">
+              <form onSubmit={handleSubmit} className="space-y-4" action="#">
                 <div>
                   <label
                     htmlFor="email"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
-                    Your email
+                    Your username
                   </label>
                   <input
-                    type="email"
-                    name="email"
-                    id="email"
+                    type="text"
+                    name="username"
+                    id="username"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                    placeholder="name@company.com"
-                    required
+                    placeholder="username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                   />
                 </div>
                 <div>
@@ -79,6 +105,8 @@ const LoginModal = () => {
                     name="password"
                     id="password"
                     placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                     required
                   />
@@ -100,23 +128,21 @@ const LoginModal = () => {
                       Remember me
                     </label>
                   </div>
-                  <a
-                    href="#"
-                    className="text-sm text-blue-700 hover:underline dark:text-blue-500"
-                  >
+                  <button className="text-sm text-blue-700 hover:underline dark:text-blue-500">
                     Lost Password?
-                  </a>
+                  </button>
                 </div>
+                {error && <div className="error-message">{error}</div>}
                 <button
                   type="submit"
+                  disabled={loading}
                   className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 >
-                  Login to your account
+                  {loading ? "Logging in..." : "Login"}
                 </button>
                 <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
                   Not registered?{" "}
-                  <a
-                    href="#"
+                  <button
                     className="text-blue-700 hover:underline dark:text-blue-500"
                     onClick={() => {
                       setIsLoginModal(false);
@@ -124,7 +150,7 @@ const LoginModal = () => {
                     }}
                   >
                     Create account
-                  </a>
+                  </button>
                 </div>
               </form>
             </div>
