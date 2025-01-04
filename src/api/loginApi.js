@@ -54,4 +54,13 @@ const loginApi = async (username, password) => {
   }
 };
 
-export default loginApi;
+const registerApi = async (formData) => {
+  try {
+    const response = await axiosInstance.post("/api/users/register", formData); // Assuming "/api/users/register" is the endpoint for registration
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export default { loginApi, registerApi };
