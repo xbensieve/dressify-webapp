@@ -36,7 +36,7 @@ function CartModal() {
   const totalPrice = cart.reduce((total, product) => total + product.Price, 0);
 
   return (
-    <div>
+    <>
       {/* Button to open modal */}
       <button
         onClick={() => setIsCartModal(true)}
@@ -124,7 +124,7 @@ function CartModal() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
