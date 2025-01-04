@@ -14,6 +14,7 @@ const LoginModal = () => {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
+    phoneNumber: "",
     password: "",
     confirmPassword: "",
   });
@@ -35,6 +36,9 @@ const LoginModal = () => {
       newErrors.username = "Username must be at least 8 characters long";
     }
 
+    if (formData.phoneNumber.length < 10) {
+      newErrors.phoneNumber = "Phone number must be at least 10 digits.";
+    }
     if (!formData.password) {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 8) {
@@ -62,11 +66,36 @@ const LoginModal = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmitRegistration = (e) => {
+  const handleSubmitRegistration = async (e) => {
     e.preventDefault();
-
     if (validateForm()) {
-      console.log("Form submitted:", formData);
+      try {
+        const response = await api.registerApi(formData);
+        if (response.success) {
+          console.log("Registration successful:", response.message);
+          setFormData({
+            username: "",
+            email: "",
+            phoneNumber: "",
+            password: "",
+            confirmPassword: "",
+          });
+          setErrors({});
+          setError(null);
+          alert("Registration successful!");
+          window.location.href = "/";
+        } else {
+          console.error("Registration failed:", response.message);
+        }
+      } catch (error) {
+        console.error(
+          "API Error:",
+          error.response?.data?.message || error.message
+        );
+        setError(error.message);
+      }
+    } else {
+      console.error("Form validation failed", errors);
     }
   };
 
@@ -96,6 +125,9 @@ const LoginModal = () => {
       const response = await api.loginApi(usernameLogin, passwordLogin);
       if (response.success) {
         localStorage.setItem("access_token", response.access_token);
+        setError(null);
+        setUsernameLogin("");
+        setPasswordLogin("");
         window.location.href = "/";
       } else {
         setError(response.message);
@@ -173,7 +205,7 @@ const LoginModal = () => {
               </button>
             </div>
             <div className="p-4 md:p-5">
-              <form onSubmit={handleSubmit} className="space-y-4" action="#">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label
                     htmlFor="email"
@@ -230,7 +262,9 @@ const LoginModal = () => {
                     Lost Password?
                   </button>
                 </div>
-                {error && <div className="error-message">{error}</div>}
+                {error && (
+                  <div className="error-message text-red-500">{error}</div>
+                )}
                 <button
                   type="submit"
                   disabled={loading}
@@ -310,7 +344,9 @@ const LoginModal = () => {
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                     required
                   />
-                  {errors.username && <p>{errors.username}</p>}
+                  {errors.username && (
+                    <p className="text-red-500">{errors.username}</p>
+                  )}
                 </div>
                 <div>
                   <label
@@ -326,9 +362,29 @@ const LoginModal = () => {
                     value={formData.email}
                     onChange={handleChange}
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                    placeholder="name@company.com"
+                    placeholder="name@gmail.com"
                     required
                   />
+                </div>
+                <div>
+                  <label
+                    htmlFor="phoneNumber"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Your phone number
+                  </label>
+                  <input
+                    type="number"
+                    name="phoneNumber"
+                    id="phoneNumber"
+                    value={formData.phoneNumber}
+                    onChange={handleChange}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                    required
+                  />
+                  {errors.phoneNumber && (
+                    <p className="text-red-500">{errors.phoneNumber}</p>
+                  )}
                 </div>
                 <div className="relative">
                   <label
@@ -337,60 +393,70 @@ const LoginModal = () => {
                   >
                     Your password
                   </label>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    id="register-password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="••••••••"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={togglePasswordVisibility}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/6"
-                  >
-                    {showPassword ? (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                    ) : (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
-                        />
-                      </svg>
-                    )}
-                  </button>
-                  {errors.password && <p>{errors.password}</p>}
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      id="register-password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      placeholder="••••••••"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pr-10 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={togglePasswordVisibility}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    >
+                      {showPassword ? (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="w-5 h-5"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="w-5 h-5"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  {errors.password && (
+                    <p className="mt-2 text-sm text-red-500">
+                      {errors.password}
+                    </p>
+                  )}
                 </div>
+
                 <div className="relative">
                   <label
                     htmlFor="confirmPassword"
@@ -398,60 +464,70 @@ const LoginModal = () => {
                   >
                     Confirm password
                   </label>
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    placeholder="••••••••"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={toggleConfirmPasswordVisibility}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/6"
-                  >
-                    {showConfirmPassword ? (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                    ) : (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
-                        />
-                      </svg>
-                    )}
-                  </button>
-                  {errors.confirmPassword && <p>{errors.confirmPassword}</p>}
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      placeholder="••••••••"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pr-10 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={toggleConfirmPasswordVisibility}
+                      aria-label={
+                        showConfirmPassword ? "Hide password" : "Show password"
+                      }
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    >
+                      {showConfirmPassword ? (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="w-5 h-5"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="w-5 h-5"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  {errors.confirmPassword && (
+                    <p className="mt-2 text-sm text-red-500">
+                      {errors.confirmPassword}
+                    </p>
+                  )}
                 </div>
+                {error && <p className="text-red-500">{error}</p>}
                 <button
                   type="submit"
                   className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"

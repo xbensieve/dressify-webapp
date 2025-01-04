@@ -56,7 +56,7 @@ const loginApi = async (username, password) => {
 
 const registerApi = async (formData) => {
   try {
-    const response = await axiosInstance.post("/api/users/register", formData); // Assuming "/api/users/register" is the endpoint for registration
+    const response = await axiosInstance.post("/api/users/register", formData);
     return response.data;
   } catch (error) {
     throw error;

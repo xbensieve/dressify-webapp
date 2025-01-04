@@ -26,7 +26,13 @@ const ProductDetailPage = () => {
       setLoading(false);
     }
   };
-
+  const addToCart = (product) => {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const productToAdd = { ...product, quantity: 1 };
+    cart.push(productToAdd);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert("Product added to cart!");
+  };
   useEffect(() => {
     if (productId) {
       fetchProductDetail();
@@ -173,6 +179,7 @@ const ProductDetailPage = () => {
               <button
                 type="button"
                 class="min-w-[200px] px-4 py-2.5 border border-blue-600 bg-transparent hover:bg-gray-50 text-gray-800 text-sm font-semibold rounded"
+                onClick={() => addToCart(product)}
               >
                 Add to cart
               </button>
