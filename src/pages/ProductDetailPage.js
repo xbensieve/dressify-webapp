@@ -2,13 +2,16 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 const ProductDetailPage = () => {
-  const location = useLocation(); // Get location object
-  const { productId } = location.state || {}; // Retrieve productId from state
+  const location = useLocation();
+  const { productId } = location.state || {};
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [imageUrls, setImageUrls] = useState([]);
   const [currentImage, setCurrentImage] = useState("");
-  // Function to fetch product detail
+  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedQuantity, setSelectedQuantity] = useState(1);
+
   const fetchProductDetail = async () => {
     setLoading(true);
     try {
@@ -26,31 +29,81 @@ const ProductDetailPage = () => {
       setLoading(false);
     }
   };
+
   const addToCart = (product) => {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const productToAdd = { ...product, quantity: 1 };
-    cart.push(productToAdd);
-    localStorage.setItem("cart", JSON.stringify(cart));
+    if (!selectedColor || !selectedSize || selectedQuantity === 0) {
+      alert("Please select color, size, and quantity before adding to cart.");
+      return;
+    }
+    const cookieName = "cart";
+    const getCartFromCookies = () => {
+      const cookies = document.cookie.split("; ");
+      const cartCookie = cookies.find((row) =>
+        row.startsWith(`${cookieName}=`)
+      );
+      return cartCookie
+        ? JSON.parse(decodeURIComponent(cartCookie.split("=")[1]))
+        : [];
+    };
+    const saveCartToCookies = (cart) => {
+      document.cookie = `${cookieName}=${encodeURIComponent(
+        JSON.stringify(cart)
+      )}; path=/; max-age=${60 * 60 * 24 * 7}`;
+    };
+    const cart = getCartFromCookies();
+    const existingProduct = cart.find(
+      (item) => item.ProductId === product.ProductId
+    );
+
+    if (existingProduct) {
+      existingProduct.quantity += selectedQuantity;
+    } else {
+      const productToAdd = { ...product, quantity: selectedQuantity };
+      cart.push(productToAdd);
+    }
+    saveCartToCookies(cart);
     alert("Product added to cart!");
+    setSelectedColor("");
+    setSelectedSize("");
+    setSelectedQuantity(0);
   };
   useEffect(() => {
     if (productId) {
       fetchProductDetail();
     }
   }, [productId]);
+  const toggleColorSelection = (color) => {
+    setSelectedColor(selectedColor === color ? null : color);
+  };
 
+  const toggleSizeSelection = (size) => {
+    setSelectedSize(selectedSize === size ? null : size);
+  };
+
+  const handleQuantityChange = (e) => {
+    setSelectedQuantity(Number(e.target.value));
+  };
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-center">
+          <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 border-solid border-gray-200 rounded-full border-t-4 border-t-blue-600"></div>
+          <p className="mt-4 text-lg font-semibold text-gray-700">
+            Please wait, loading...
+          </p>
+        </div>
+      </div>
+    );
   }
 
   if (!product) {
     return <div>Product not found</div>;
   }
+
   return (
     <div className="font-sans bg-white">
       <div className="p-4 lg:max-w-5xl max-w-3xl mx-auto">
         <div className="grid items-start grid-cols-1 lg:grid-cols-5 gap-8 shadow-lg p-6 rounded-lg">
-          {/* Main Image Section */}
           <div className="lg:col-span-3 w-full text-center">
             <div className="p-4 rounded-lg shadow-lg relative">
               <img
@@ -160,12 +213,68 @@ const ProductDetailPage = () => {
                 {product.Color.split(",").map((color) => (
                   <button
                     key={color.trim()}
-                    type="button"
-                    className="px-4 py-2 bg-gray-100 border-2 border-gray-300 text-gray-800 rounded-md font-medium text-lg transition-all hover:bg-gray-200"
+                    onClick={() => toggleColorSelection(color.trim())}
+                    className={`px-4 py-2 bg-gray-100 border-2 text-gray-800 rounded-md font-medium text-lg transition-all hover:bg-gray-200 ${
+                      selectedColor === color.trim()
+                        ? "bg-blue-600 text-black"
+                        : "bg-gray-500 text-black"
+                    }`}
                   >
-                    {color.trim()} {/* Display the color name as text */}
+                    {color.trim()}
                   </button>
                 ))}
+              </div>
+            </div>
+            <div className="mt-8">
+              <h3 className="text-xl font-bold text-gray-800">Choose a Size</h3>
+              <div className="flex flex-wrap gap-3 mt-4">
+                {product.Size.split(",").map((size) => (
+                  <button
+                    key={size.trim()}
+                    onClick={() => toggleSizeSelection(size.trim())}
+                    className={`px-4 py-2 bg-gray-100 border-2 text-gray-800 rounded-md font-medium text-lg transition-all hover:bg-gray-200 ${
+                      selectedSize === size.trim()
+                        ? "bg-blue-600 text-black"
+                        : "bg-gray-500 text-black"
+                    }`}
+                  >
+                    {size.trim()}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="mt-8 flex justify-center items-center">
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">
+                  Quantity
+                </h3>
+                <div className="flex items-center justify-center">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSelectedQuantity(Math.max(selectedQuantity - 1, 1))
+                    }
+                    className="px-4 py-2 bg-gray-100 border-2 border-gray-300 rounded-l-md text-gray-600 hover:bg-gray-200 transition-all"
+                  >
+                    -
+                  </button>
+                  <input
+                    type="number"
+                    value={selectedQuantity}
+                    min="1"
+                    onChange={(e) =>
+                      setSelectedQuantity(Number(e.target.value))
+                    }
+                    className="w-20 text-center p-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setSelectedQuantity(selectedQuantity + 1)}
+                    className="px-4 py-2 bg-gray-100 border-2 border-gray-300 rounded-r-md text-gray-600 hover:bg-gray-200 transition-all"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
             </div>
 

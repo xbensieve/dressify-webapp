@@ -35,62 +35,68 @@ const ProductPage = () => {
     }
   };
   const handleProductClick = (productId) => {
-    // Navigate to the detail page without exposing productId in the URL
     navigate("/detail", { state: { productId } });
   };
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-center">
+          <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 border-solid border-gray-200 rounded-full border-t-4 border-t-blue-600"></div>
+          <p className="mt-4 text-lg font-semibold text-gray-700">
+            Please wait, loading...
+          </p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
         <h2 className="sr-only">Products</h2>
-
-        {loading ? (
-          <div>Loading...</div>
-        ) : (
-          <div>
-            <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-              {products.map((product) => (
-                <div
-                  key={product.ProductId}
-                  onClick={() => handleProductClick(product.ProductId)} // Handle click
-                  className="group cursor-pointer"
-                >
-                  <img
-                    alt={product.ProductName}
-                    src={product.ImageUrl.split(",")[0].trim()}
-                    className="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-[7/8]"
-                  />
-                  <h3 className="mt-4 text-sm text-gray-700 truncate">
-                    {product.ProductName}
-                  </h3>
-                  <p className="mt-1 text-lg font-medium text-gray-900">
-                    ${new Intl.NumberFormat().format(product.Price)}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            {/* Pagination Controls */}
-            <div className="mt-8 flex justify-center">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-md disabled:bg-gray-400"
+        <div>
+          <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+            {products.map((product) => (
+              <div
+                key={product.ProductId}
+                onClick={() => handleProductClick(product.ProductId)} // Handle click
+                className="group cursor-pointer"
               >
-                Previous
-              </button>
-              <span className="mx-4 text-sm font-medium text-gray-700">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-md disabled:bg-gray-400"
-              >
-                Next
-              </button>
-            </div>
+                <img
+                  alt={product.ProductName}
+                  src={product.ImageUrl.split(",")[0].trim()}
+                  className="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-[7/8]"
+                />
+                <h3 className="mt-4 text-sm text-gray-700 truncate">
+                  {product.ProductName}
+                </h3>
+                <p className="mt-1 text-lg font-medium text-gray-900">
+                  ${new Intl.NumberFormat().format(product.Price)}
+                </p>
+              </div>
+            ))}
           </div>
-        )}
+
+          {/* Pagination Controls */}
+          <div className="mt-8 flex justify-center">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-md disabled:bg-gray-400"
+            >
+              Previous
+            </button>
+            <span className="mx-4 text-sm font-medium text-gray-700">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-md disabled:bg-gray-400"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
