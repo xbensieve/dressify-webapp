@@ -29,6 +29,25 @@ function CartModal() {
     saveCartToCookies(updatedCart);
   };
   const handlePayment = async () => {
+    const accessToken = localStorage.getItem("access_token");
+    if (!accessToken) {
+      alert("Please log in");
+      return;
+    }
+    try {
+      const token = decodeAccessToken(accessToken);
+      const expTime = token.exp * 1000;
+      const currentTime = Date.now();
+      if (currentTime > expTime) {
+        alert("Session expired. Please log in again.");
+        return;
+      }
+
+      console.log("Access token is valid");
+    } catch (error) {
+      alert("Invalid token format.");
+      return;
+    }
     if (selectedItems.length === 0) {
       alert("Please select at least one item.");
       return;

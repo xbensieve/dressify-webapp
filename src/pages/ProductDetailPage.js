@@ -92,6 +92,25 @@ const ProductDetailPage = () => {
   };
 
   const sendOrder = async () => {
+    const accessToken = localStorage.getItem("access_token");
+    if (!accessToken) {
+      alert("Please log in");
+      return;
+    }
+    try {
+      const token = decodeAccessToken(accessToken);
+      const expTime = token.exp * 1000;
+      const currentTime = Date.now();
+      if (currentTime > expTime) {
+        alert("Session expired. Please log in again.");
+        return;
+      }
+
+      console.log("Access token is valid");
+    } catch (error) {
+      alert("Invalid token format.");
+      return;
+    }
     if (!selectedColor) {
       alert("Please select a color before submitting the order.");
       return;
