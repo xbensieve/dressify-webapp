@@ -1,12 +1,12 @@
 import axios from "axios";
 
 // Configuration for the base API URL and request timeout
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+import config from "../config.js";
 const TIMEOUT = 10000; // 10 seconds timeout
 
 // Axios instance with default configurations
 const axiosInstance = axios.create({
-  baseURL: API_URL,
+  baseURL: config.API_URL,
   timeout: TIMEOUT,
   headers: {
     "Content-Type": "application/json",

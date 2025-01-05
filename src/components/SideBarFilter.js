@@ -63,12 +63,12 @@ const filters = [
     id: "size",
     name: "Size",
     options: [
-      { value: "2l", label: "2L", checked: false },
-      { value: "6l", label: "6L", checked: false },
-      { value: "12l", label: "12L", checked: false },
-      { value: "18l", label: "18L", checked: false },
-      { value: "20l", label: "20L", checked: false },
-      { value: "40l", label: "40L", checked: true },
+      { value: "XS", label: "XS", checked: false },
+      { value: "S", label: "S", checked: false },
+      { value: "M", label: "M", checked: false },
+      { value: "L", label: "L", checked: false },
+      { value: "XL", label: "XL", checked: false },
+      { value: "XXL", label: "XXL", checked: true },
     ],
   },
 ];
@@ -79,7 +79,27 @@ function classNames(...classes) {
 
 const SideBarFilter = () => {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState({
+    color: [],
+    category: [],
+    size: [],
+  });
+  const handleFilterChange = (sectionId, optionValue) => {
+    setSelectedFilters((prevState) => {
+      const newFilters = { ...prevState };
+      const currentSelection = newFilters[sectionId];
 
+      if (currentSelection.includes(optionValue)) {
+        newFilters[sectionId] = currentSelection.filter(
+          (value) => value !== optionValue
+        );
+      } else {
+        newFilters[sectionId] = [...currentSelection, optionValue];
+      }
+
+      return newFilters;
+    });
+  };
   return (
     <div className="bg-white">
       <div>
@@ -155,6 +175,12 @@ const SideBarFilter = () => {
                               <div className="group grid size-4 grid-cols-1">
                                 <input
                                   defaultValue={option.value}
+                                  checked={selectedFilters[
+                                    section.id
+                                  ]?.includes(option.value)}
+                                  onChange={() =>
+                                    handleFilterChange(section.id, option.value)
+                                  }
                                   id={`filter-mobile-${section.id}-${optionIdx}`}
                                   name={`${section.id}[]`}
                                   type="checkbox"
@@ -311,6 +337,12 @@ const SideBarFilter = () => {
                                 <input
                                   defaultValue={option.value}
                                   defaultChecked={option.checked}
+                                  checked={selectedFilters[
+                                    section.id
+                                  ]?.includes(option.value)}
+                                  onChange={() =>
+                                    handleFilterChange(section.id, option.value)
+                                  }
                                   id={`filter-${section.id}-${optionIdx}`}
                                   name={`${section.id}[]`}
                                   type="checkbox"
@@ -354,7 +386,7 @@ const SideBarFilter = () => {
 
               {/* Product grid */}
               <div className="lg:col-span-3">
-                <Outlet />
+                <Outlet context={selectedFilters} />
               </div>
             </div>
           </section>

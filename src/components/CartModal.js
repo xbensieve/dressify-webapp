@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-
+import decodeAccessToken from "../utils/decodeJwt";
+import createOrder from "../api/orderApi";
+import createPayment from "../api/paymentApi";
 function CartModal() {
   const [isCartModal, setIsCartModal] = useState(false);
   const [cart, setCart] = useState([]);
-  const navigate = useNavigate();
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [address, setAddress] = useState("1234 Main St, Anytown, USA");
   useEffect(() => {
     const storedCart = Cookies.get("cart");
     setCart(storedCart ? JSON.parse(storedCart) : []);
@@ -21,23 +23,68 @@ function CartModal() {
 
   const removeFromCart = (productId) => {
     const updatedCart = cart.filter(
-      (product) => product.ProductId !== productId
+      (product) => product.productId !== productId
     );
     setCart(updatedCart);
     saveCartToCookies(updatedCart);
   };
-  const handlePayment = () => {
-    window.location.href =
-      "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?vnp_Amount=1806000&vnp_Command=pay&vnp_CreateDate=20210801153333&vnp_CurrCode=VND&vnp_IpAddr=127.0.0.1&vnp_Locale=vn&vnp_OrderInfo=Thanh+toan+don+hang+%3A5&vnp_OrderType=other&vnp_ReturnUrl=https%3A%2F%2Fdomainmerchant.vn%2FReturnUrl&vnp_TmnCode=DEMOV210&vnp_TxnRef=5&vnp_Version=2.1.0&vnp_SecureHash=3e0d61a0c0534b2e36680b3f7277743e8784cc4e1d68fa7d276e79c23be7d6318d338b477910a27992f5057bb1582bd44bd82ae8009ffaf6d141219218625c42";
+  const handlePayment = async () => {
+    if (selectedItems.length === 0) {
+      alert("Please select at least one item.");
+      return;
+    }
+    const orderPayload = {
+      userId: decodeAccessToken(localStorage.getItem("access_token")).id,
+      method: "VNPAY",
+      address: address,
+      products: selectedItems,
+    };
+    try {
+      const createOrderResponse = await createOrder(orderPayload);
+      if (!createOrderResponse || !createOrderResponse.orderId) {
+        throw new Error("Cannot create order. Please try again!");
+      }
+      const paymentResponse = await createPayment(createOrderResponse.orderId);
+      if (!paymentResponse || !paymentResponse.paymentUrl) {
+        throw new Error("Cannot create payment URL. Please try again!");
+      }
+      setSelectedItems([]);
+      const updatedCart = cart.filter(
+        (product) =>
+          !selectedItems.some((item) => item.productId === product.productId)
+      );
+      setCart(updatedCart);
+      saveCartToCookies(updatedCart);
+      alert("Order placed successfully!");
+      window.location.href = paymentResponse.paymentUrl;
+    } catch (error) {
+      console.error("Error placing order:", error);
+      alert("There was an error placing your order. Please try again.");
+    }
   };
   const totalPrice = cart.reduce(
-    (total, product) => total + product.Price * product.quantity,
+    (total, product) => total + product.unitPrice * product.quantity,
     0
   );
   const totalItems = cart.reduce(
     (total, product) => total + product.quantity,
     0
   );
+  const handleCheckboxChange = (product) => {
+    setSelectedItems((prevSelectedItems) => {
+      const isSelected = prevSelectedItems.some(
+        (item) => item.productId === product.productId
+      );
+      if (isSelected) {
+        return prevSelectedItems.filter(
+          (item) => item.productId !== product.productId
+        );
+      } else {
+        return [...prevSelectedItems, product];
+      }
+    });
+  };
+
   return (
     <>
       <button
@@ -71,31 +118,36 @@ function CartModal() {
               {cart.map((product) => (
                 <div
                   className="flex flex-wrap items-center justify-between gap-4"
-                  key={product.ProductId}
+                  key={product.productId}
                 >
                   <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      onChange={() => handleCheckboxChange(product)}
+                      className="mr-4"
+                    />
                     <img
-                      src={product.ImageUrl}
+                      src={product.image}
                       className="w-16 h-16 p-2 shrink-0 bg-gray-200 rounded-md"
-                      alt={product.ProductName}
+                      alt={product.name}
                     />
                     <div className="ml-4">
-                      <p className="text-sm text-gray-800">
-                        {product.ProductName}
-                      </p>
-                      <p className="text-gray-500 text-xs mt-1">{`${product.quantity} Item`}</p>
+                      <p className="text-sm text-gray-800">{product.name}</p>
+                      <p className="text-gray-500 text-xs mt-1">{`Quantity: ${product.quantity}`}</p>
+                      <p className="text-gray-500 text-xs mt-1">{`Size: ${product.size}`}</p>
+                      <p className="text-gray-500 text-xs mt-1">{`Color: ${product.color}`}</p>
                     </div>
                   </div>
 
                   <div className="flex items-center">
                     <span className="text-base font-bold text-gray-800 mr-4">
-                      ${product.Price}
+                      ${product.unitPrice}
                     </span>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="w-[18px] fill-red-500 inline cursor-pointer"
                       viewBox="0 0 24 24"
-                      onClick={() => removeFromCart(product.ProductId)}
+                      onClick={() => removeFromCart(product.productId)}
                     >
                       <path d="M19 7a1 1 0 0 0-1 1v11.191A1.92 1.92 0 0 1 15.99 21H8.01A1.92 1.92 0 0 1 6 19.191V8a1 1 0 0 0-2 0v11.191A3.918 3.918 0 0 0 8.01 23h7.98A3.918 3.918 0 0 0 20 19.191V8a1 1 0 0 0-1-1Zm1-3h-4V2a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v2H4a1 1 0 0 0 0 2h16a1 1 0 0 0 0-2ZM10 4V3h4v1Z"></path>
                       <path d="M11 17v-7a1 1 0 0 0-2 0v7a1 1 0 0 0 2 0Zm4 0v-7a1 1 0 0 0-2 0v7a1 1 0 0 0 2 0Z"></path>

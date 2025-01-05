@@ -2,7 +2,7 @@ const Footer = () => {
   return (
     <footer class="bg-white dark:bg-gray-900 mt-auto">
       <div class="mx-auto w-full max-w-screen-xl">
-        <div class="grid grid-cols-2 gap-8 px-4 py-6 lg:py-8 md:grid-cols-4">
+        <div class="grid grid-cols-3 gap-8 px-4 py-6 lg:py-8 md:grid-cols-5">
           <div>
             <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">
               Company
@@ -30,6 +30,21 @@ const Footer = () => {
               </li>
             </ul>
           </div>
+          <div class="col-span-2 md:col-span-1">
+            <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">
+              Find Us
+            </h2>
+            <div class="rounded-lg overflow-hidden shadow-md">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.3080492187825!2d-122.41941538466934!3d37.774929779759874!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8085808fbaf8e9cd%3A0x3d1d5b22e69f3bcb!2sSan%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1691506066505!5m2!1sen!2sus"
+                class="w-full h-48 border-0"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </div>
+          </div>
+
           <div>
             <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">
               Help center
@@ -107,7 +122,7 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-        <div class="px-6 py-8 bg-gradient-to-r from-gray-100 via-gray-200 to-gray-300 dark:from-gray-700 dark:via-gray-800 dark:to-gray-900 rounded-lg shadow-lg md:flex md:items-center md:justify-between">
+        <div class="px-6 py-8 bg-gradient-to-r from-gray-100 via-gray-200 to-gray-300 dark:from-gray-700 dark:via-gray-800 dark:to-gray-900  shadow-lg md:flex md:items-center md:justify-between">
           <div class="mb-4 md:mb-0">
             <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">
               Welcome to SkyLines™
