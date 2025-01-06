@@ -21,13 +21,6 @@ const Banner = () => {
 
   useEffect(() => {
     setCurrentSeason(getSeason());
-
-    if (!isBannerVisible) {
-      const timer = setTimeout(() => {
-        setIsBannerVisible(true);
-      }, 10000);
-      return () => clearTimeout(timer);
-    }
   }, [isBannerVisible]);
 
   return (
