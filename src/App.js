@@ -10,11 +10,13 @@ import SideBarFilter from "./components/SideBarFilter";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import PaymentFailedPage from "./pages/PaymentFailedPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import Login from "./pages/Login";
 function App() {
   return (
     <div className="App">
       <Router>
         <Routes>
+          <Route path="/login" element={<Login />} />
           <Route element={<MainLayout />}>
             <Route path="/" element={<HomePage />} />
             <Route element={<SideBarFilter />}>
