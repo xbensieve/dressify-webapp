@@ -12,16 +12,16 @@ const Header = () => {
   ];
 
   const rightMenuItems = [
-    { text: "Sign Up", href: "#" },
-    { text: "Sign In", href: "#" },
+    { text: "Sign Up", href: "register" },
+    { text: "Sign In", href: "login" },
   ];
   const MenuItems = [
     { text: "Seller Channel", href: "#" },
     { text: "Become the seller", href: "#" },
     { text: "Download application", href: "#" },
     { text: "Connect", href: "#" },
-    { text: "Sign Up", href: "#" },
-    { text: "Sign In", href: "#" },
+    { text: "Sign Up", href: "register" },
+    { text: "Sign In", href: "login" },
   ];
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
