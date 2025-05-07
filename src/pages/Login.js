@@ -240,7 +240,7 @@ const Login = () => {
           <h1 class="text-sm font-semibold mb-6 text-gray-500 text-center">
             Join to Our Community with all time access and free{" "}
           </h1>
-          <div class="mt-4 items-center justify-between">
+          <div class="mt-4 flex flex-col items-center justify-between">
             <div>
               <GoogleLogin
                 onSuccess={(credentialResponse) => {
