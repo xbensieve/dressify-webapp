@@ -2,48 +2,45 @@ import React, { useState, useRef, useEffect } from "react";
 import { FaComments, FaPaperPlane } from "react-icons/fa";
 import { SiZalo } from "react-icons/si";
 import { motion, AnimatePresence } from "framer-motion";
-import { Input, Button } from "antd";
+import { Input, Button, Spin } from "antd";
 import { fetchAIResponse } from "../utils/geminiApi";
 
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("chat");
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([]); // Added messages state
+  const [isLoading, setIsLoading] = useState(false); // Loading state for API calls
   const widgetRef = useRef(null);
   const lastMessageRef = useRef(null);
 
   const toggleChat = () => setIsOpen((prev) => !prev);
 
   const handleChat = async () => {
-    if (message.trim()) {
-      const userMessage = { sender: "user", text: message };
-      setMessages((prev) => [...prev, userMessage]);
-      try {
-        const response = await fetchAIResponse(messages);
-        const aiMessage = {
-          sender: "ai",
-          text:
-            response?.candidates?.[0]?.content?.parts?.[0]?.text ||
-            "Sorry, I couldn't understand that.",
-        };
+    if (!message.trim()) return;
 
-        setMessages((prev) => [...prev, aiMessage]);
-        console.log(messages);
-      } catch (error) {
-        console.error("Error fetching AI response:", error);
+    const userMessage = { sender: "user", text: message };
+    setMessages((prev) => [...prev, userMessage]);
+    setMessage(""); // Clear input field
 
-        const errorMessage = {
-          sender: "ai",
-          text: "There was an error processing your request. Please try again later.",
-        };
-
-        setMessages((prev) => [...prev, errorMessage]);
-      }
-
-      setMessage("");
-    } else {
-      alert("Please enter a message before sending.");
+    try {
+      setIsLoading(true);
+      const aiResponse = await fetchAIResponse(message);
+      const aiMessage = {
+        sender: "ai",
+        text:
+          aiResponse?.candidates?.[0]?.content?.parts?.[0]?.text ||
+          "No response",
+      };
+      setMessages((prev) => [...prev, aiMessage]);
+    } catch (error) {
+      const errorMessage = {
+        sender: "ai",
+        text: "Sorry, something went wrong. Please try again later.",
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -93,6 +90,7 @@ const ChatWidget = () => {
                     ? "bg-blue-600 text-white"
                     : "bg-gray-100 text-gray-600"
                 }`}
+                aria-label="Chat Tab"
               >
                 Chat
               </button>
@@ -103,6 +101,7 @@ const ChatWidget = () => {
                     ? "bg-green-500 text-white"
                     : "bg-gray-100 text-gray-600"
                 }`}
+                aria-label="Zalo Tab"
               >
                 Zalo
               </button>
@@ -138,15 +137,20 @@ const ChatWidget = () => {
                     placeholder="Type your message..."
                     className="flex-1"
                     size="small"
+                    disabled={isLoading} // Disable input while loading
                   />
                   <Button
                     onClick={handleChat}
-                    disabled={!message}
+                    disabled={!message || isLoading}
                     type="primary"
                     icon={<FaPaperPlane />}
                     size="small"
                     className="bg-blue-600 hover:bg-blue-700"
+                    aria-label="Send Message"
                   />
+                  {isLoading && (
+                    <Spin size="small" className="ml-2" /> // Add spinner here
+                  )}
                 </div>
               </div>
             )}
@@ -160,6 +164,7 @@ const ChatWidget = () => {
                 <button
                   onClick={openZaloChat}
                   className="bg-green-500 text-white px-5 py-2 rounded-full shadow-md hover:bg-green-600 transition"
+                  aria-label="Open Zalo"
                 >
                   Open Zalo
                 </button>
