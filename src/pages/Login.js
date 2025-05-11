@@ -2,10 +2,33 @@ import { motion } from "framer-motion";
 import { GoogleLogin } from "@react-oauth/google";
 import { Divider, Form, Input, Button } from "antd";
 import Footer from "../components/Footer";
+import loginApi from "../api/loginApi";
+import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 const Login = () => {
-  const onFinish = (values) => {
-    console.log("Form Values:", values);
+  const navigate = useNavigate();
+  const onFinish = async (values) => {
+    try {
+      const { username, password } = values;
+      const response = await loginApi.loginApi(username, password);
+
+      // Store tokens in cookies
+      Cookies.set("access_token", response.access_token, {
+        secure: true,
+        sameSite: "strict",
+      });
+      Cookies.set("refresh_token", response.refresh_token, {
+        secure: true,
+        sameSite: "strict",
+      });
+
+      // Redirect to homepage
+      navigate("/");
+    } catch (error) {
+      console.error("Login failed:", error.message || error);
+    }
   };
+
   return (
     <div>
       <header class="bg-slate-950 text-white py-6 px-8">

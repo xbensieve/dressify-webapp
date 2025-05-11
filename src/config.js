@@ -1,5 +1,7 @@
-const API_URL = "https://skylines-api.onrender.com";
+const API_URL = "https://dressify-vesti-app.onrender.com";
 
-export default {
+const config = {
   API_URL,
 };
+
+export default config;
