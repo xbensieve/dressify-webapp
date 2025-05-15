@@ -1,66 +1,46 @@
-import axios from "axios";
+import axiosClient from "./axiosClient";
+import Cookies from "js-cookie";
 
-// Configuration for the base API URL and request timeout
-import config from "../config.js";
-const TIMEOUT = 10000; // 10 seconds timeout
+const loginApi = {
+  login: async (credentials) => {
+    const response = await axiosClient.post("/api/users/login", credentials);
+    const { access_token, refresh_token } = response.data;
 
-// Axios instance with default configurations
-const axiosInstance = axios.create({
-  baseURL: config.API_URL,
-  timeout: TIMEOUT,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// Response interceptor for handling authorization errors
-axiosInstance.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response) {
-      // Handle specific HTTP status codes
-      switch (error.response.status) {
-        case 401:
-          // Unauthorized - possibly handle token expiration or login failure
-          // Redirect to login page or refresh token logic
-          break;
-        case 500:
-          // Internal server error
-          console.error("Server error: ", error.response.data);
-          break;
-        default:
-          console.error("API error: ", error.response.data);
-      }
-      throw error.response.data;
-    } else if (error.request) {
-      // Request was made but no response was received
-      throw { message: "No response from server" };
-    } else {
-      // Error in setting up the request
-      throw { message: `Request Error: ${error.message}` };
-    }
-  }
-);
-
-const loginApi = async (username, password) => {
-  try {
-    const response = await axiosInstance.post("/api/users/login", {
-      username,
-      password,
+    // Store tokens in cookies
+    Cookies.set("access_token", access_token, {
+      secure: true,
+      sameSite: "strict",
     });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+    Cookies.set("refresh_token", refresh_token, {
+      secure: true,
+      sameSite: "strict",
+    });
+
+    return response;
+  },
+  logout: () => {
+    // Clear tokens
+    Cookies.remove("access_token");
+    Cookies.remove("refresh_token");
+    window.location.href = "/login";
+  },
 };
 
-const registerApi = async (formData) => {
-  try {
-    const response = await axiosInstance.post("/api/users/register", formData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+const loginWithGoogle = async (token) => {
+  const response = await axiosClient.post("/api/users/login-google", { token });
+  const { access_token, refresh_token } = response.data;
+
+  // Store tokens in cookies
+  Cookies.set("access_token", access_token, {
+    secure: true,
+    sameSite: "strict",
+  });
+  Cookies.set("refresh_token", refresh_token, {
+    secure: true,
+    sameSite: "strict",
+  });
+
+  return response;
 };
 
-export default { loginApi, registerApi };
+export { loginApi, loginWithGoogle };
