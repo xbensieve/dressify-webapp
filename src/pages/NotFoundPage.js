@@ -1,25 +1,25 @@
+import { Link } from "react-router-dom";
+
 const NotFoundPage = () => {
   return (
-    <section class="bg-white dark:bg-gray-900">
-      <div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
-        <div class="mx-auto max-w-screen-sm text-center">
-          <h1 class="mb-4 text-7xl tracking-tight font-extrabold lg:text-9xl text-primary-600 dark:text-primary-500">
-            404
-          </h1>
-          <p class="mb-4 text-3xl tracking-tight font-bold text-gray-900 md:text-4xl dark:text-white">
-            Something's missing.
-          </p>
-          <p class="mb-4 text-lg font-light text-gray-500 dark:text-gray-400">
-            Sorry, we can't find that page. You'll find lots to explore on the
-            home page.{" "}
-          </p>
-          <a
-            href="/"
-            class="inline-flex text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:focus:ring-primary-900 my-4"
-          >
-            Back to Homepage
-          </a>
-        </div>
+    <section className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center px-4">
+      <div className="text-center max-w-xl">
+        <h1 className="text-7xl md:text-9xl font-extrabold text-primary-600 dark:text-primary-500 mb-6">
+          404
+        </h1>
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          Page not found
+        </h2>
+        <p className="text-gray-600 dark:text-gray-400 text-lg mb-6">
+          Sorry, we couldn't find the page you're looking for. You can always go
+          back to the homepage.
+        </p>
+        <Link
+          to="/"
+          className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 active:scale-95 focus:ring-4 focus:ring-primary-300 rounded-lg transition-all duration-200 ease-in-out dark:focus:ring-primary-800"
+        >
+          Back to Homepage
+        </Link>
       </div>
     </section>
   );

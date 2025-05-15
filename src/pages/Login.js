@@ -1,13 +1,49 @@
 import { motion } from "framer-motion";
 import { GoogleLogin } from "@react-oauth/google";
-import { Divider, Form, Input, Button } from "antd";
+import { Divider, Form, Input, Alert } from "antd";
 import Footer from "../components/Footer";
+import { loginApi, loginWithGoogle } from "../api/loginApi";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import Loading from "../components/Loading";
 const Login = () => {
-  const onFinish = (values) => {
-    console.log("Form Values:", values);
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const onFinish = async (values) => {
+    setIsLoading(true);
+    try {
+      await loginApi.login(values);
+      navigate("/");
+    } catch (error) {
+      console.error("Login failed:", error.message || error);
+      setError("Login failed. Please check your credentials.", error.message);
+    } finally {
+      setIsLoading(true);
+    }
   };
+
+  const handleLoginWithGoogle = async (credentialResponse) => {
+    setIsLoading(true);
+    try {
+      await loginWithGoogle(credentialResponse.credential);
+      navigate("/");
+    } catch (error) {
+      console.error("Login with Google failed:", error.message || error);
+      setError("Login with Google failed. Please try again.", error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onClose = () => {
+    setError(null);
+  };
+
   return (
-    <div>
+    <div className="relative">
+      {isLoading && <Loading />}
       <header class="bg-slate-950 text-white py-6 px-8">
         <div class="flex items-center">
           <h1 class="text-4xl font-inter tracking-wide">Xbensieve Sign In</h1>
@@ -300,10 +336,10 @@ const Login = () => {
             <div class="mt-4 flex flex-col items-center justify-between">
               <GoogleLogin
                 onSuccess={(credentialResponse) => {
-                  console.log(credentialResponse);
+                  handleLoginWithGoogle(credentialResponse);
                 }}
                 onError={() => {
-                  console.log("Login Failed");
+                  setError("Login failed. Please try again.");
                 }}
               />
             </div>
@@ -313,7 +349,15 @@ const Login = () => {
             >
               or with username
             </Divider>
-
+            {error && (
+              <Alert
+                message={error}
+                type="error"
+                showIcon
+                closable
+                onClose={onClose}
+              />
+            )}
             <div className="w-full max-w-md mx-auto">
               <Form layout="vertical" onFinish={onFinish} className="space-y-4">
                 <Form.Item
