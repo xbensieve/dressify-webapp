@@ -3,7 +3,7 @@ import Slider from "../components/Slider";
 import CategorySection from "../components/CategorySection";
 import Gallery from "../components/Gallery";
 import VideoPlayer from "../components/VideoPlayer";
-
+import FlashSaleComponent from "../components/FlashSale";
 
 const HomePage = () => {
   const [sliderRef, sliderInView] = useInView({
@@ -58,7 +58,7 @@ const HomePage = () => {
       >
         <Gallery />
       </div>
-
+      <FlashSaleComponent />
       {/* Category Section */}
       <div
         ref={categoryRef}
