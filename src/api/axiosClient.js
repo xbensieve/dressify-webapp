@@ -91,7 +91,6 @@ axiosClient.interceptors.response.use(
         processQueue(err, null);
         Cookies.remove("access_token");
         Cookies.remove("refresh_token");
-        window.location.href = "/login"; // Redirect to login
         return Promise.reject(err);
       } finally {
         isRefreshing = false;
