@@ -1,6 +1,24 @@
 import { useState, useEffect } from "react";
+import categoryApi from "../api/categoryApi";
 const Gallery = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [categories, setCategories] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await categoryApi.getAll();
+        setCategories(response.data);
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
+        setError("Unable to load categories. Please try again later.");
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   const images = [
     "https://images.pexels.com/photos/4456815/pexels-photo-4456815.jpeg?auto=compress&cs=tinysrgb&w=600",
     "https://images.pexels.com/photos/19852011/pexels-photo-19852011/free-photo-of-thanh-ph-th-i-trang-ng-i-kinh-ram.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load",
@@ -19,10 +37,11 @@ const Gallery = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 3000); // Change image every 3 seconds
+    }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [images.length]);
+  
   return (
     <div className="bg-gray-100 min-h-screen">
       <div className="flex items-center justify-center py-6 flex-wrap gap-4">
@@ -32,30 +51,16 @@ const Gallery = () => {
         >
           All Categories
         </button>
-        <button
-          type="button"
-          className="text-gray-900 border border-gray-300 bg-white hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-full text-base font-medium px-5 py-2.5 transition-all duration-300"
-        >
-          Shoes
-        </button>
-        <button
-          type="button"
-          className="text-gray-900 border border-gray-300 bg-white hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-full text-base font-medium px-5 py-2.5 transition-all duration-300"
-        >
-          Bags
-        </button>
-        <button
-          type="button"
-          className="text-gray-900 border border-gray-300 bg-white hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-full text-base font-medium px-5 py-2.5 transition-all duration-300"
-        >
-          Accessories
-        </button>
-        <button
-          type="button"
-          className="text-gray-900 border border-gray-300 bg-white hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-full text-base font-medium px-5 py-2.5 transition-all duration-300"
-        >
-          Clothes
-        </button>
+        {categories &&
+          categories.map((category) => (
+            <button
+              key={category._id}
+              type="button"
+              className="text-gray-900 border border-gray-300 bg-white hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-full text-base font-medium px-5 py-2.5 transition-all duration-300"
+            >
+              {category.name}
+            </button>
+          ))}
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 px-4 sm:px-6 lg:px-8">
