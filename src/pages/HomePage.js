@@ -1,23 +1,26 @@
-import React from "react";
 import { useInView } from "react-intersection-observer";
 import Slider from "../components/Slider";
 import CategorySection from "../components/CategorySection";
 import Gallery from "../components/Gallery";
 import VideoPlayer from "../components/VideoPlayer";
 
+
 const HomePage = () => {
   const [sliderRef, sliderInView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
+
   const [galleryRef, galleryInView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
+
   const [categoryRef, categoryInView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
+
   const [videoRef, videoInView] = useInView({
     triggerOnce: true,
     threshold: 0.1,

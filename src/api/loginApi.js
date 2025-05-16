@@ -22,7 +22,6 @@ const loginApi = {
     // Clear tokens
     Cookies.remove("access_token");
     Cookies.remove("refresh_token");
-    window.location.href = "/login";
   },
 };
 

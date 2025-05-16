@@ -2,8 +2,15 @@ import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Logo from "./Logo";
 import SearchBar from "./SearchBar";
-
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { loginApi } from "../api/loginApi";
+import userApi from "../api/userApi";
+import { useNavigate } from "react-router-dom";
 const Header = () => {
+  const navigate = useNavigate();
+  const { user, setUser } = useContext(AuthContext);
+
   const leftMenuItems = [
     { text: "Seller Channel", href: "#" },
     { text: "Become the seller", href: "#" },
@@ -11,17 +18,31 @@ const Header = () => {
     { text: "Connect", href: "#" },
   ];
 
-  const rightMenuItems = [
-    { text: "Sign Up", href: "register" },
-    { text: "Sign In", href: "login" },
-  ];
+  const rightMenuItems = user
+    ? [
+        { text: "Dashboard", href: "/dashboard" },
+        {
+          text: "Logout",
+          href: "#",
+          onClick: (e) => {
+            e.preventDefault();
+            loginApi.logout();
+            setUser(null);
+            navigate("/login");
+          },
+        },
+      ]
+    : [
+        { text: "Sign Up", href: "/register" },
+        { text: "Sign In", href: "/login" },
+      ];
+
   const MenuItems = [
     { text: "Seller Channel", href: "#" },
-    { text: "Become the seller", href: "#" },
-    { text: "Download application", href: "#" },
+    { text: "Become a Seller", href: "#" },
+    { text: "Download Application", href: "#" },
     { text: "Connect", href: "#" },
-    { text: "Sign Up", href: "register" },
-    { text: "Sign In", href: "login" },
+    ...rightMenuItems,
   ];
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
@@ -83,6 +104,7 @@ const Header = () => {
                 key={index}
                 href={item.href}
                 className="hover:text-gray-500 font-inter"
+                onClick={item.onClick}
               >
                 {item.text}
               </a>
