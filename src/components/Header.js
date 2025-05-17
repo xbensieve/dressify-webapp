@@ -5,7 +5,6 @@ import SearchBar from "./SearchBar";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { loginApi } from "../api/loginApi";
-import userApi from "../api/userApi";
 import { useNavigate } from "react-router-dom";
 const Header = () => {
   const navigate = useNavigate();
@@ -33,8 +32,22 @@ const Header = () => {
         },
       ]
     : [
-        { text: "Sign Up", href: "/register" },
-        { text: "Sign In", href: "/login" },
+        {
+          text: "Sign In",
+          href: "/login",
+          onClick: (e) => {
+            e.preventDefault();
+            navigate("/login", { state: { showRegister: false } });
+          },
+        },
+        {
+          text: "Register",
+          href: "/login",
+          onClick: (e) => {
+            e.preventDefault();
+            navigate("/login", { state: { showRegister: true } });
+          },
+        },
       ];
 
   const MenuItems = [
