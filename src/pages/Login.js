@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { GoogleLogin } from "@react-oauth/google";
-import { Divider, Form, Input, Alert } from "antd";
+import { Divider, Alert, message } from "antd";
 import Footer from "../components/Footer";
 import { loginApi, loginWithGoogle } from "../api/loginApi";
 import { useNavigate } from "react-router-dom";
@@ -10,12 +10,15 @@ import LoginImage from "../components/LoginImage";
 import LoginHeader from "../components/LoginHeader";
 import { AuthContext } from "../context/AuthContext";
 import userApi from "../api/userApi";
+import LoginForm from "../components/LoginForm";
+import RegistrationForm from "../components/RegistrationForm";
 
 const Login = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const { user, setUser } = useContext(AuthContext);
+  const [isSignUp, setIsSignUp] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -26,13 +29,10 @@ const Login = () => {
   const onFinish = async (values) => {
     setIsLoading(true);
     try {
-      const response = await loginApi.login(values);
-      console.log(response);
-      if (response.data.success === false) {
-        setError(response.data.message);
-      }
+      await loginApi.login(values);
       const userInfo = await userApi.getUser();
       setUser(userInfo);
+      message.success("Login successful!");
       navigate("/");
     } catch (error) {
       setError("Login failed. Please check your credentials.", error.message);
@@ -47,6 +47,7 @@ const Login = () => {
       await loginWithGoogle(credentialResponse.credential);
       const userInfo = await userApi.getUser();
       setUser(userInfo);
+      setError(null);
       navigate("/");
     } catch (error) {
       setError("Login with Google failed. Please try again.", error.message);
@@ -55,8 +56,27 @@ const Login = () => {
     }
   };
 
+  const handleRegister = async (values) => {
+    setIsLoading(true);
+    try {
+      const response = await loginApi.register(values);
+      setUser(null);
+      setError(null);
+      setIsSignUp(false);
+      message.success(response.data.message); // Show success message
+    } catch (error) {
+      setError(error.response?.data?.message || "Registration failed.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const onClose = () => {
     setError(null);
+  };
+
+  const shiftForm = () => {
+    setIsSignUp(!isSignUp);
   };
 
   return (
@@ -102,52 +122,23 @@ const Login = () => {
                 onClose={onClose}
               />
             )}
+
             <div className="w-full max-w-md mx-auto">
-              <Form layout="vertical" onFinish={onFinish} className="space-y-4">
-                <Form.Item
-                  label="Username"
-                  name="username"
-                  rules={[
-                    { required: true, message: "Please input your username!" },
-                  ]}
-                >
-                  <Input
-                    placeholder="Enter your username"
-                    className="p-2 rounded-md"
-                  />
-                </Form.Item>
-                <Form.Item
-                  label="Password"
-                  name="password"
-                  rules={[
-                    { required: true, message: "Please input your password!" },
-                  ]}
-                >
-                  <Input.Password
-                    placeholder="Enter your password"
-                    className="p-2 rounded-md"
-                  />
-                </Form.Item>
-                <Form.Item>
-                  <div>
-                    <button
-                      type="submit"
-                      className="w-full bg-black text-white py-2 rounded-md font-semibold
-                 hover:bg-gray-800 active:scale-95
-                 transition-all duration-300 ease-in-out"
-                    >
-                      Sign Up
-                    </button>
-                  </div>
-                </Form.Item>
-              </Form>
+              {isSignUp ? (
+                <RegistrationForm onFinish={handleRegister} />
+              ) : (
+                <LoginForm onFinish={onFinish} />
+              )}
             </div>
+
             <div class="mt-4 text-sm text-gray-600 text-center">
               <p>
-                Already have an account?{" "}
-                <a href="/login" class="text-black hover:underline">
-                  Login here
-                </a>
+                {isSignUp
+                  ? "Already have an account?"
+                  : "Don't have an account?"}{" "}
+                <button onClick={shiftForm} class="text-black hover:underline">
+                  {isSignUp ? "Sign In" : "Sign Up"}
+                </button>
               </p>
             </div>
           </div>

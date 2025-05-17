@@ -18,6 +18,20 @@ const loginApi = {
 
     return response;
   },
+  register: async (data) => {
+    const payload = {
+      username: data.username,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      password: data.password,
+      phone: data.phone,
+      email: data.email,
+      role: "customer",
+      dob: data.dob,
+    };
+    const response = await axiosClient.post("/api/users/register", payload);
+    return response;
+  },
   logout: () => {
     // Clear tokens
     Cookies.remove("access_token");
