@@ -54,7 +54,7 @@ const SearchBar = () => {
         }}
         whileTap={{ scale: 0.98 }}
       >
-        <form onSubmit={handleSearch}>
+        <form onSubmit={handleSearch} className="flex gap-2">
           <Input
             placeholder="Search for products"
             prefix={<SearchOutlined className="text-gray-500" />}
@@ -66,6 +66,14 @@ const SearchBar = () => {
             aria-label="Search products"
             allowClear
           />
+          <Button
+            type="primary"
+            htmlType="submit"
+            className="h-12"
+            icon={<SearchOutlined />}
+          >
+            Search
+          </Button>
         </form>
       </motion.div>
 

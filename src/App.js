@@ -11,6 +11,11 @@ import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import PaymentFailedPage from "./pages/PaymentFailedPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import Login from "./pages/Login";
+import Dashboard from "./pages/Admin/Dashboard";
+import ManageCategory from "./pages/Admin/ManageCategory";
+import ManageProduct from "./pages/Admin/ManageProduct";
+import ManageUser from "./pages/Admin/ManageUser";
+import RequireRole from "./components/RequireRole";
 function App() {
   return (
     <div className="App">
@@ -28,6 +33,20 @@ function App() {
             <Route path="/success" element={<PaymentSuccessPage />} />
             <Route path="/failed" element={<PaymentFailedPage />} />
             <Route path="*" element={<NotFoundPage />} />
+          </Route>
+
+          {/* Admin */}
+          <Route
+            path="/admin"
+            element={
+              <RequireRole allowedRoles="admin">
+                <Dashboard />
+              </RequireRole>
+            }
+          >
+            <Route path="category" element={<ManageCategory />} />
+            <Route path="product" element={<ManageProduct />} />
+            <Route path="user" element={<ManageUser />} />
           </Route>
         </Routes>
       </Router>
