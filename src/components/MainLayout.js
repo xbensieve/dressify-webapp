@@ -13,7 +13,6 @@ const MainLayout = () => {
       <footer>
         <Footer />
       </footer>
-
       <ChatWidget />
     </div>
   );
