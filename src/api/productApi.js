@@ -1,5 +1,17 @@
+import axiosClient from "./axiosClient.js";
 import axios from "axios";
 import config from "../config.js";
+
+const addProduct = async (data) => {
+  try {
+    const response = await axiosClient.post("/api/products", data);
+    return response.data;
+  } catch (error) {
+    console.error("Error adding product:", error.message);
+    throw error;
+  }
+};
+
 const getProducts = async (page) => {
   try {
     const response = await axios.get(
@@ -22,4 +34,6 @@ const getProductById = async (id) => {
     throw error;
   }
 };
-export default { getProducts, getProductById };
+
+const productApi = { getProducts, getProductById, addProduct };
+export default productApi;

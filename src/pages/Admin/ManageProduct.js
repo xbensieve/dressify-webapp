@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import {
   Card,
   Form,
@@ -11,11 +10,27 @@ import {
   Col,
   Space,
   InputNumber,
+  Select,
+  Descriptions,
+  Empty,
+  Image,
+  Modal,
 } from "antd";
+import { motion } from "framer-motion";
 import { UploadOutlined } from "@ant-design/icons";
+import productApi from "../../api/productApi";
+import categoryApi from "../../api/categoryApi";
+import validateProductForm from "../../utils/validateProductForm";
+
+const { confirm } = Modal;
 
 const ManageProduct = () => {
   const [form] = Form.useForm();
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [colors, setColors] = useState([]);
+  const [sizes, setSizes] = useState([]);
+
   const [product, setProduct] = useState({
     name: "",
     description: "",
@@ -29,29 +44,84 @@ const ManageProduct = () => {
   const [liveData, setLiveData] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Update liveData whenever product, variations, or images change
+  // Fetch categories on component mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await categoryApi.getAll();
+        setCategories(response.data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  //add data for colors and sizes
+  useEffect(() => {
+    const fetchColorsAndSizes = async () => {
+      try {
+        const color = [
+          "Red",
+          "Blue",
+          "Green",
+          "Yellow",
+          "Black",
+          "White",
+          "Pink",
+          "Purple",
+          "Orange",
+          "Gray",
+          "Brown",
+          "Cyan",
+          "Magenta",
+          "Lime",
+          "Teal",
+          "Navy",
+          "Maroon",
+          "Olive",
+          "Coral",
+          "Salmon",
+        ];
+        const size = ["S", "M", "L", "XL", "XXL", "XXXL", "4XL", "5XL", "6XL"];
+        setColors(color);
+        setSizes(size);
+      } catch (error) {
+        console.error("Error fetching colors and sizes:", error);
+      }
+    };
+    fetchColorsAndSizes();
+  }, []);
+  // Handle category selection
+  const handleCategoryChange = (value) => {
+    setSelectedCategory(value);
+    setProduct({ ...product, category_id: value });
+  };
+
   useEffect(() => {
     const data = {
       ...product,
       variations,
       imagePreviews: images.map((image) => URL.createObjectURL(image)),
     };
+    //display category name instead of id
+    const category = categories.find((cat) => cat._id === product.category_id);
+    if (category) {
+      data.category_id = category.name;
+    }
     setLiveData(data);
-  }, [product, variations, images]);
+  }, [product, variations, images, categories]);
 
-  // Handle product input changes
   const handleProductChange = (e) => {
     setProduct({ ...product, [e.target.name]: e.target.value });
   };
 
-  // Handle variation input changes
   const handleVariationChange = (idx, e) => {
     const updated = [...variations];
     updated[idx][e.target.name] = e.target.value;
     setVariations(updated);
   };
 
-  // Add a new variation
   const addVariation = () => {
     setVariations([
       ...variations,
@@ -59,56 +129,78 @@ const ManageProduct = () => {
     ]);
   };
 
-  // Handle image uploads
-  const handleImagesChange = (e) => {
-    setImages([...e.target.files]);
-  };
-
   const handleSubmit = async () => {
-    setLoading(true);
-    const formData = new FormData();
-    formData.append("product", JSON.stringify(product));
-    formData.append("variations", JSON.stringify(variations));
-    images.forEach((img) => formData.append("images", img));
+    if (
+      !validateProductForm(
+        product,
+        images,
+        variations,
+        selectedCategory,
+        message
+      )
+    )
+      return;
 
-    try {
-      const res = await axios.post(
-        "http://localhost:5000/api/products",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4Mjk1MTQ4MmJiYTUwYWE5ODg1ZmMzZSIsInVzZXJuYW1lIjoiT0FkbWluMjgwMSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0NzU1NTUyOSwiZXhwIjoxNzQ3NTU2NDI5fQ.VZ3gRDpMlz-cAs_iAJWXR37k55_hD8n2uA6h7tFxaHM",
-          },
+    // Confirm before submitting
+    confirm({
+      title: "Confirm Submission",
+      content: "Are you sure you want to add this product?",
+      okText: "Yes",
+      okType: "primary",
+      cancelText: "No",
+      onOk: async () => {
+        setLoading(true);
+        const formData = new FormData();
+        formData.append("product", JSON.stringify(product));
+        formData.append("variations", JSON.stringify(variations));
+        images.forEach((img) => formData.append("images", img));
+        try {
+          const response = await productApi.addProduct(formData);
+          if (response.success === true) {
+            message.success("Product added successfully");
+            form.resetFields();
+            setProduct({
+              name: "",
+              description: "",
+              price: "",
+              category_id: "",
+            });
+            setVariations([
+              { size: "", color: "", price: "", stock_quantity: "" },
+            ]);
+            setImages([]);
+            setSelectedCategory(null);
+            setLiveData(null);
+            return;
+          } else {
+            message.error(response.message);
+            return;
+          }
+        } catch (err) {
+          message.error(`Error: ${err.response?.data?.message || err.message}`);
+        } finally {
+          setLoading(false);
         }
-      );
-      message.success(
-        `Product added successfully at ${new Date().toLocaleString("en-US", {
-          timeZone: "Asia/Bangkok",
-        })}! ${JSON.stringify(res.data)}`
-      );
-    } catch (err) {
-      message.error(`Error: ${err.response?.data?.message || err.message}`);
-    } finally {
-      setLoading(false);
-    }
+      },
+      onCancel() {
+        message.info("Submission cancelled");
+      },
+    });
   };
 
-  // Handle form cancellation
   const handleCancel = () => {
     form.resetFields();
     setProduct({ name: "", description: "", price: "", category_id: "" });
     setVariations([{ size: "", color: "", price: "", stock_quantity: "" }]);
     setImages([]);
+    setSelectedCategory(null);
     setLiveData(null);
     message.info("Operation cancelled");
   };
 
-  // Upload props for images
   const uploadProps = {
     beforeUpload: (file) => {
-      return false; // Prevent actual upload for demo
+      return false;
     },
     onChange: (info) => {
       if (info.fileList.length > 0) {
@@ -126,7 +218,7 @@ const ManageProduct = () => {
         <Col xs={24} lg={16}>
           <Card
             title="Basic Information"
-            className="mb-6 shadow-lg rounded-lg bg-white"
+            className="mb-6 shadow-lg rounded-lg bg-white font-mono"
             headStyle={{
               background: "#f8fafc",
               fontWeight: "bold",
@@ -134,7 +226,17 @@ const ManageProduct = () => {
             }}
           >
             {/* Product Images */}
-            <Form.Item label="Product Images" className="mb-6">
+            <Form.Item
+              label="Product Images"
+              name="productImages"
+              className="mb-6"
+              rules={[
+                {
+                  required: true,
+                  message: "Please upload at least one product image!",
+                },
+              ]}
+            >
               <Space size={16} align="start">
                 <Upload
                   {...uploadProps}
@@ -155,7 +257,6 @@ const ManageProduct = () => {
                 </div>
               </Space>
             </Form.Item>
-
             {/* Product Name */}
             <Form.Item label="Product Name" className="mb-6">
               <Input
@@ -199,13 +300,16 @@ const ManageProduct = () => {
 
             {/* Category ID */}
             <Form.Item label="Category" className="mb-6">
-              <Input
-                name="category_id"
-                placeholder="Category ID"
-                value={product.category_id}
-                onChange={handleProductChange}
+              <Select
+                placeholder="Select a category"
+                value={selectedCategory}
+                onChange={handleCategoryChange}
+                className="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                options={categories.map((category) => ({
+                  label: category.name,
+                  value: category._id,
+                }))}
                 required
-                className="rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
               />
             </Form.Item>
 
@@ -227,21 +331,39 @@ const ManageProduct = () => {
                   className="w-full"
                 >
                   <Form.Item label="Size" className="flex-1 min-w-[120px]">
-                    <Input
+                    <Select
                       name="size"
-                      placeholder="Size"
+                      placeholder="Select size"
                       value={v.size}
-                      onChange={(e) => handleVariationChange(idx, e)}
-                      className="rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                      onChange={(value) => {
+                        const updated = [...variations];
+                        updated[idx].size = value;
+                        setVariations(updated);
+                      }}
+                      className="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                      options={sizes.map((size) => ({
+                        label: size,
+                        value: size,
+                      }))}
+                      required
                     />
                   </Form.Item>
                   <Form.Item label="Color" className="flex-1 min-w-[120px]">
-                    <Input
+                    <Select
                       name="color"
-                      placeholder="Color"
+                      placeholder="Select color"
                       value={v.color}
-                      onChange={(e) => handleVariationChange(idx, e)}
-                      className="rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                      onChange={(value) => {
+                        const updated = [...variations];
+                        updated[idx].color = value;
+                        setVariations(updated);
+                      }}
+                      className="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                      options={colors.map((color) => ({
+                        label: color,
+                        value: color,
+                      }))}
+                      required
                     />
                   </Form.Item>
                   <Form.Item label="Price" className="flex-1 min-w-[120px]">
@@ -277,6 +399,19 @@ const ManageProduct = () => {
                       className="w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                     />
                   </Form.Item>
+                  <Button
+                    danger
+                    type="link"
+                    onClick={() => {
+                      if (variations.length > 1) {
+                        setVariations(variations.filter((_, i) => i !== idx));
+                      }
+                    }}
+                    disabled={variations.length === 1}
+                    style={{ alignSelf: "center", padding: 0 }}
+                  >
+                    Delete
+                  </Button>
                 </Space>
               ))}
               <Button
@@ -311,53 +446,109 @@ const ManageProduct = () => {
               liveData.variations.some(
                 (v) => v.size || v.color || v.price || v.stock_quantity
               )) ? (
-              <div className="space-y-4 text-gray-700">
-                <p className="font-medium">
-                  <strong>Name:</strong> {liveData.name || "N/A"}
-                </p>
-                <p className="font-medium">
-                  <strong>Description:</strong> {liveData.description || "N/A"}
-                </p>
-                <p className="font-medium">
-                  <strong>Price:</strong>{" "}
-                  {liveData.price ? `$${liveData.price}` : "N/A"}
-                </p>
-                <p className="font-medium">
-                  <strong>Category ID:</strong> {liveData.category_id || "N/A"}
-                </p>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="space-y-6 text-gray-700"
+              >
+                {/* Product Details */}
+                <Descriptions
+                  title="Product Information"
+                  bordered
+                  column={1}
+                  className="bg-white rounded-lg shadow-sm"
+                  labelStyle={{ fontWeight: 500, color: "#374151" }}
+                  contentStyle={{ color: "#4b5563" }}
+                >
+                  <Descriptions.Item label="Name">
+                    {liveData.name || "N/A"}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Description">
+                    {liveData.description || "N/A"}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Price">
+                    {liveData.price ? `$${liveData.price}` : "N/A"}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Category  ">
+                    {liveData.category_id || "N/A"}
+                  </Descriptions.Item>
+                </Descriptions>
+
+                {/* Image Previews */}
                 <div>
-                  <p className="font-medium mb-2">
-                    <strong>Images:</strong>
-                  </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {liveData.imagePreviews.map((preview, idx) => (
-                      <img
-                        key={idx}
-                        src={preview}
-                        alt={`Preview ${idx + 1}`}
-                        className="w-full h-20 object-cover rounded-lg shadow-md"
-                      />
-                    ))}
-                  </div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                    Images
+                  </h3>
+                  {liveData.imagePreviews?.length > 0 ? (
+                    <Image.PreviewGroup>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {liveData.imagePreviews.map((preview, idx) => (
+                          <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.3, delay: idx * 0.1 }}
+                          >
+                            <Image
+                              src={preview}
+                              alt={`Preview ${idx + 1}`}
+                              className="w-full h-24 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                            />
+                          </motion.div>
+                        ))}
+                      </div>
+                    </Image.PreviewGroup>
+                  ) : (
+                    <Empty description="No images available" />
+                  )}
                 </div>
-                <p className="font-medium">
-                  <strong>Variations:</strong> {liveData.variations.length}{" "}
-                  variations available
-                </p>
-                <div className="space-y-3">
-                  {liveData.variations.map((v, idx) => (
-                    <div key={idx} className="p-2 bg-gray-50 rounded-md">
-                      <p className="font-medium">
-                        <strong>Variation {idx + 1}:</strong>
-                      </p>
-                      <p>Size: {v.size || "N/A"}</p>
-                      <p>Color: {v.color || "N/A"}</p>
-                      <p>Price: {v.price ? `$${v.price}` : "N/A"}</p>
-                      <p>Stock: {v.stock_quantity || "N/A"}</p>
+
+                {/* Variations */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                    Variations ({liveData.variations?.length || 0} available)
+                  </h3>
+                  {liveData.variations?.length > 0 ? (
+                    <div className="space-y-4">
+                      {liveData.variations.map((v, idx) => (
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: idx * 0.1 }}
+                        >
+                          <Card
+                            title={`Variation ${idx + 1}`}
+                            className="bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                          >
+                            <Descriptions
+                              column={1}
+                              size="small"
+                              bordered={false}
+                            >
+                              <Descriptions.Item label="Size">
+                                {v.size || "N/A"}
+                              </Descriptions.Item>
+                              <Descriptions.Item label="Color">
+                                {v.color || "N/A"}
+                              </Descriptions.Item>
+                              <Descriptions.Item label="Price">
+                                {v.price ? `$${v.price}` : "N/A"}
+                              </Descriptions.Item>
+                              <Descriptions.Item label="Stock">
+                                {v.stock_quantity || "N/A"}
+                              </Descriptions.Item>
+                            </Descriptions>
+                          </Card>
+                        </motion.div>
+                      ))}
                     </div>
-                  ))}
+                  ) : (
+                    <Empty description="No variations available" />
+                  )}
                 </div>
-              </div>
+              </motion.div>
             ) : (
               <div className="text-gray-500 text-center">
                 No product data entered yet
@@ -388,16 +579,13 @@ const ManageProduct = () => {
         </Button>
 
         <Space className="space-x-4">
-          <Button className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md transition duration-200">
-            Save & Hide
-          </Button>
           <Button
             type="primary"
             onClick={handleSubmit}
             loading={loading}
             className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition duration-200"
           >
-            Save & Display
+            Save
           </Button>
         </Space>
       </div>

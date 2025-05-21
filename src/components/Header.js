@@ -6,20 +6,45 @@ import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { loginApi } from "../api/loginApi";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import decodeAccessToken from "../utils/decodeJwt";
 const Header = () => {
   const navigate = useNavigate();
   const { user, setUser } = useContext(AuthContext);
-
   const leftMenuItems = [
     { text: "Seller Channel", href: "#" },
     { text: "Become the seller", href: "#" },
     { text: "Download application", href: "#" },
     { text: "Connect", href: "#" },
   ];
-
+  const token = Cookies.get("access_token");
+  useEffect(() => {
+    //decode token to get user info
+    if (token) {
+      const decodedToken = decodeAccessToken(token);
+      const userInfo = {
+        id: decodedToken.id,
+        email: decodedToken.email,
+        name: decodedToken.name,
+        role: decodedToken.role,
+      };
+      setUser(userInfo);
+    }
+  }, [token, setUser]);
   const rightMenuItems = user
     ? [
-        { text: "Dashboard", href: "/dashboard" },
+        ...(user.role === "admin"
+          ? [
+              {
+                text: "Admin Panel",
+                href: "/admin",
+                onClick: (e) => {
+                  e.preventDefault();
+                  navigate("/admin");
+                },
+              },
+            ]
+          : []),
         {
           text: "Logout",
           href: "#",
