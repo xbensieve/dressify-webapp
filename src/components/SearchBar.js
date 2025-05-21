@@ -1,12 +1,15 @@
 import { motion } from "framer-motion";
 import { Input, Button } from "antd";
 import { SearchOutlined, DeleteOutlined } from "@ant-design/icons";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 const SearchBar = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchHistory, setSearchHistory] = useState([]);
   const [isFocused, setIsFocused] = useState(false);
+  const navigate = useNavigate();
+  const formRef = useRef(null);
 
   // Load search history from localStorage on mount
   useEffect(() => {
@@ -26,15 +29,22 @@ const SearchBar = () => {
       ].slice(0, 5); // Limit to 5 recent searches
       setSearchHistory(updatedHistory);
       localStorage.setItem("searchHistory", JSON.stringify(updatedHistory));
-      setSearchTerm("");
-      setIsFocused(false);
+      setSearchTerm(""); // Clear input after search
+      setIsFocused(false); // Hide dropdown
+      navigate(`/search?keyword=${encodeURIComponent(searchTerm)}`);
+      console.log("Searching for:", searchTerm); // Placeholder for actual search logic
     }
   };
 
   // Handle clicking a recent search
   const handleRecentSearchClick = (search) => {
     setSearchTerm(search);
-    setIsFocused(true);
+    setIsFocused(false); // Hide dropdown after selection
+    // Programmatically submit the form
+    if (formRef.current) {
+      const event = new Event("submit", { cancelable: true });
+      formRef.current.dispatchEvent(event);
+    }
   };
 
   // Clear all search history
@@ -54,7 +64,7 @@ const SearchBar = () => {
         }}
         whileTap={{ scale: 0.98 }}
       >
-        <form onSubmit={handleSearch} className="flex gap-2">
+        <form ref={formRef} onSubmit={handleSearch} className="flex gap-2">
           <Input
             placeholder="Search for products"
             prefix={<SearchOutlined className="text-gray-500" />}
@@ -62,25 +72,24 @@ const SearchBar = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setTimeout(() => setIsFocused(false), 200)}
-            className="h-12 w-full rounded-md border border-gray-300 bg-white text-sm placeholder-gray-950 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all duration-300"
+            className="h-10 w-full rounded-md border border-gray-300 bg-white text-sm placeholder-gray-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all duration-200"
             aria-label="Search products"
             allowClear
           />
           <Button
             type="primary"
             htmlType="submit"
-            className="h-12"
-            icon={<SearchOutlined />}
+            className="h-10 px-4 flex items-center justify-center bg-indigo-600 text-white text-sm font-medium rounded-md border-none hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-400 focus:ring-offset-1 focus:ring-offset-white transition-all duration-200 shadow-sm hover:shadow"
+            icon={<SearchOutlined className="mr-1.5 text-base" />}
           >
             Search
           </Button>
         </form>
       </motion.div>
-
       {/* Search History Dropdown */}
       {searchHistory.length > 0 && isFocused && (
         <motion.div
-          className="absolute top-14 w-full bg-white border border-gray-200 rounded-md shadow-lg z-10"
+          className="absolute top-12 w-full bg-white border border-gray-200 rounded-md shadow-lg z-10"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
@@ -93,26 +102,26 @@ const SearchBar = () => {
             <Button
               type="text"
               icon={<DeleteOutlined />}
-              onClick={clearHistory}
-              className="text-gray-500 hover:text-red-500"
+              onMouseDown={clearHistory} // Changed from onClick to onMouseDown
+              className="text-gray-500 hover:text-red-500 text-sm"
               aria-label="Clear all search history"
             >
               Clear All
             </Button>
           </div>
           <ul className="max-h-48 overflow-y-auto">
-            {searchHistory.map((item, index) => (
+            {searchHistory.map((search, index) => (
               <motion.li
                 key={index}
-                className="px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 cursor-pointer"
-                onClick={() => handleRecentSearchClick(item)}
+                className="px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer transition-colors duration-150"
+                onMouseDown={() => handleRecentSearchClick(search)}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.2 }}
                 role="option"
                 aria-selected="false"
               >
-                {item}
+                {search}
               </motion.li>
             ))}
           </ul>

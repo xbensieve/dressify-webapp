@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import categoryApi from "../api/categoryApi";
+import { Button } from "antd";
 const Gallery = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [categories, setCategories] = useState([]);
@@ -41,25 +42,42 @@ const Gallery = () => {
 
     return () => clearInterval(interval);
   }, [images.length]);
-  
+
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className=" min-h-screen">
       <div className="flex items-center justify-center py-6 flex-wrap gap-4">
-        <button
-          type="button"
-          className="text-blue-700 hover:text-white border border-blue-600 bg-white hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-full text-base font-medium px-5 py-2.5 transition-all duration-300"
+        <Button
+          type="primary"
+          size="large"
+          className="rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 shadow-lg transition-all duration-300"
         >
           All Categories
-        </button>
+        </Button>
         {categories &&
           categories.map((category) => (
-            <button
+            <Button
               key={category._id}
-              type="button"
-              className="text-gray-900 border border-gray-300 bg-white hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-full text-base font-medium px-5 py-2.5 transition-all duration-300"
+              type="default"
+              size="large"
+              className="rounded-full bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 shadow-md transition-all duration-300"
+              style={{
+                backgroundImage: `url(${images[currentIndex]})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backdropFilter: "blur(5px)",
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                position: "relative",
+                overflow: "hidden",
+                color: "white",
+                fontWeight: "bold",
+                textShadow: "1px 1px 2px rgba(0, 0, 0, 0.7)",
+                padding: "10px 20px",
+                borderRadius: "9999px",
+                transition: "transform 0.3s ease",
+              }}
             >
               {category.name}
-            </button>
+            </Button>
           ))}
       </div>
 

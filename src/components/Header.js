@@ -12,10 +12,9 @@ const Header = () => {
   const navigate = useNavigate();
   const { user, setUser } = useContext(AuthContext);
   const leftMenuItems = [
-    { text: "Seller Channel", href: "#" },
-    { text: "Become the seller", href: "#" },
-    { text: "Download application", href: "#" },
-    { text: "Connect", href: "#" },
+    { text: "Contact", href: "/contact" },
+    { text: "About Us", href: "/about-us" },
+    { text: "Term & Policy", href: "/terms-and-policy" },
   ];
   const token = Cookies.get("access_token");
   useEffect(() => {
@@ -76,10 +75,9 @@ const Header = () => {
       ];
 
   const MenuItems = [
-    { text: "Seller Channel", href: "#" },
-    { text: "Become a Seller", href: "#" },
-    { text: "Download Application", href: "#" },
-    { text: "Connect", href: "#" },
+    { text: "Contact", href: "/contact" },
+    { text: "About Us", href: "/about-us" },
+    { text: "Term & Policy", href: "/terms-and-policy" },
     ...rightMenuItems,
   ];
   const [isMenuOpen, setIsMenuOpen] = useState(false);

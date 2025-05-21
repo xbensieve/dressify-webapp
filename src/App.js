@@ -1,12 +1,9 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
-import ProductPage from "./pages/ProductPage";
-import ProductDetailPage from "./pages/ProductDetailPage";
-import MainLayout from "./components/MainLayout";
-import ContactUsPage from "./pages/ContactUsPage";
-import AboutUsPage from "./pages/AboutUsPage";
-import SideBarFilter from "./components/SideBarFilter";
+import MainLayout from "./components/layout/MainLayout";
+import ContactUsPage from "./pages/Common/ContactUsPage";
+import AboutUsPage from "./pages/Common/AboutUsPage";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import PaymentFailedPage from "./pages/PaymentFailedPage";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -16,6 +13,8 @@ import ManageCategory from "./pages/Admin/ManageCategory";
 import ManageProduct from "./pages/Admin/ManageProduct";
 import ManageUser from "./pages/Admin/ManageUser";
 import RequireRole from "./components/RequireRole";
+import SearchPage from "./pages/Product/SearchPage";
+import TermsAndPolicyPage from "./pages/Common/TermsAndPolicyPage";
 function App() {
   return (
     <div className="App">
@@ -24,14 +23,12 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route element={<MainLayout />}>
             <Route path="/" element={<HomePage />} />
-            <Route element={<SideBarFilter />}>
-              <Route path="/product" element={<ProductPage />} />
-            </Route>
-            <Route path="/detail" element={<ProductDetailPage />} />
             <Route path="/contact" element={<ContactUsPage />} />
             <Route path="/about-us" element={<AboutUsPage />} />
+            <Route path="/terms-and-policy" element={<TermsAndPolicyPage />} />
             <Route path="/success" element={<PaymentSuccessPage />} />
             <Route path="/failed" element={<PaymentFailedPage />} />
+            <Route path="/search" element={<SearchPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
 
