@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import {
   Card,
   Row,
@@ -115,43 +115,45 @@ const SearchPage = () => {
             <Row gutter={[16, 16]}>
               {products.map((product) => (
                 <Col xs={12} sm={12} md={8} lg={6} key={product._id}>
-                  <Card
-                    hoverable
-                    className="h-full shadow-md hover:shadow-lg transition-shadow duration-300"
-                    cover={
-                      <div className="relative h-48 overflow-hidden">
-                        <img
-                          alt={product.images?.[0]?.altText || product.name}
-                          src={
-                            product.images?.[0]?.imageUrl ||
-                            "/placeholder-image.jpg"
-                          }
-                          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                          onError={(e) => {
-                            e.target.src = "/placeholder-image.jpg";
-                          }}
-                        />
-                      </div>
-                    }
-                  >
-                    <Card.Meta
-                      title={
-                        <Text strong className="line-clamp-1">
-                          {product.name}
-                        </Text>
-                      }
-                      description={
-                        <div className="space-y-2">
-                          <Text strong className="text-indigo-600">
-                            ${product.price?.toFixed(2)}
-                          </Text>
-                          <Text type="secondary" className="line-clamp-2">
-                            {product.description}
-                          </Text>
+                  <Link to={`/${product._id}`}>
+                    <Card
+                      hoverable
+                      className="h-full shadow-md hover:shadow-lg transition-shadow duration-300"
+                      cover={
+                        <div className="relative h-48 overflow-hidden">
+                          <img
+                            alt={product.images?.[0]?.altText || product.name}
+                            src={
+                              product.images?.[0]?.imageUrl ||
+                              "/placeholder-image.jpg"
+                            }
+                            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                            onError={(e) => {
+                              e.target.src = "/placeholder-image.jpg";
+                            }}
+                          />
                         </div>
                       }
-                    />
-                  </Card>
+                    >
+                      <Card.Meta
+                        title={
+                          <Text strong className="line-clamp-1">
+                            {product.name}
+                          </Text>
+                        }
+                        description={
+                          <div className="space-y-2">
+                            <Text strong className="text-indigo-600">
+                              ${product.price?.toFixed(2)}
+                            </Text>
+                            <Text type="secondary" className="line-clamp-2">
+                              {product.description}
+                            </Text>
+                          </div>
+                        }
+                      />
+                    </Card>
+                  </Link>
                 </Col>
               ))}
             </Row>
