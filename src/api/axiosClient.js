@@ -1,6 +1,7 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 import { message } from "antd";
+
 const axiosClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
   timeout: 10000,
@@ -10,11 +11,11 @@ let isRefreshing = false;
 let failedQueue = [];
 
 const processQueue = (error, token = null) => {
-  failedQueue.forEach((prom) => {
+  failedQueue.forEach(({ resolve, reject }) => {
     if (token) {
-      prom.resolve(token);
+      resolve(token);
     } else {
-      prom.reject(error);
+      reject(error);
     }
   });
   failedQueue = [];
@@ -23,7 +24,6 @@ const processQueue = (error, token = null) => {
 axiosClient.interceptors.request.use(
   (config) => {
     const token = Cookies.get("access_token");
-    console.log("Access Token:", token ? "Present" : "Missing");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -42,48 +42,53 @@ axiosClient.interceptors.response.use(
       !originalRequest._retry &&
       error.config.url !== "/api/users/refresh-token"
     ) {
+      originalRequest._retry = true;
+
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
-        })
-          .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            return axiosClient(originalRequest);
-          })
-          .catch((err) => Promise.reject(err));
+        }).then((token) => {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          return axiosClient(originalRequest);
+        });
       }
 
-      originalRequest._retry = true;
       isRefreshing = true;
 
       try {
         const refreshToken = Cookies.get("refresh_token");
-        if (!refreshToken) {
-          throw new Error("No refresh token available");
-        }
-        console.log("Attempting token refresh with:", refreshToken);
+        if (!refreshToken) throw new Error("No refresh token available");
+
         const response = await axios.post(
           `${process.env.REACT_APP_API_URL}/api/users/refresh-token`,
           { refresh_token: refreshToken },
-          { headers: { "Content-Type": "application/json" } }
+          {
+            headers: { "Content-Type": "application/json" },
+          }
         );
+
         const { access_token } = response.data;
-        console.log("New access token:", access_token);
+
+        if (!access_token) throw new Error("No access_token returned");
+
+        // Cập nhật access_token mới
         Cookies.set("access_token", access_token, {
           secure: true,
           sameSite: "strict",
         });
+
         processQueue(null, access_token);
+
         originalRequest.headers.Authorization = `Bearer ${access_token}`;
         return axiosClient(originalRequest);
-      } catch (err) {
-        console.error("Refresh token error:", err.message);
-        processQueue(err, null);
+      } catch (refreshError) {
+        console.error("Token refresh failed:", refreshError);
+        processQueue(refreshError, null);
         Cookies.remove("access_token");
         Cookies.remove("refresh_token");
-        message.error("Session expired, please log in again.");
+        message.error("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
         return Promise.reject(
-          new Error("Session expired, please log in again")
+          new Error("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.")
         );
       } finally {
         isRefreshing = false;
