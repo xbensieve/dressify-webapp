@@ -23,7 +23,7 @@ const Logo = () => {
             alt="SkyLines Logo"
             loading="lazy"
           />
-          <span className="self-center text-4xl font-inter tracking-tight text-gray-900 whitespace-nowrap sm:text-5xl">
+          <span className="self-center font-serif text-4xl tracking-tight text-gray-900 whitespace-nowrap sm:text-5xl">
             Xbensieve
           </span>
         </motion.div>

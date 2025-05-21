@@ -1,6 +1,5 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-import { message } from "antd";
 
 const axiosClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
@@ -86,7 +85,6 @@ axiosClient.interceptors.response.use(
         processQueue(refreshError, null);
         Cookies.remove("access_token");
         Cookies.remove("refresh_token");
-        message.error("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
         return Promise.reject(
           new Error("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.")
         );
