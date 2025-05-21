@@ -202,9 +202,8 @@ const ChatWidget = () => {
       </AnimatePresence>
       <motion.button
         onClick={toggleChat}
-        className="bg-gradient-to-tr from-blue-600 to-indigo-600 text-white p-3 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200"
+        className="bg-gradient-to-tr from-purple-500 to-purple-700 text-white p-3 rounded-full shadow-xl hover:bg-gradient-to-tr hover:from-purple-600 hover:to-purple-800 hover:shadow-2xl transition-all duration-200"
         aria-label="Toggle Chat"
-        whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
       >
         <FaComments size={20} />

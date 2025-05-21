@@ -108,7 +108,7 @@ const getProducts = async (page) => {
 
 const getProductById = async (id) => {
   try {
-    const response = await axios.get(`${config.API_URL}/api/products/${id}`);
+    const response = await axiosClient.post("/api/products/id", { id });
     return response.data;
   } catch (error) {
     console.error("Error fetching the product:", error.message);

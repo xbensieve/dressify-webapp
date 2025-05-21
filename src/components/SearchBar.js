@@ -79,7 +79,7 @@ const SearchBar = () => {
           <Button
             type="primary"
             htmlType="submit"
-            className="h-10 px-4 flex items-center justify-center bg-indigo-600 text-white text-sm font-medium rounded-md border-none hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-400 focus:ring-offset-1 focus:ring-offset-white transition-all duration-200 shadow-sm hover:shadow"
+            className="h-10 px-4 flex items-center justify-center bg-gradient-to-r from-purple-500 to-purple-700 text-white text-sm font-medium rounded-md border-none hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-800 focus:ring-2 focus:ring-purple-400 focus:ring-offset-1 focus:ring-offset-white transition-all duration-200 shadow-sm hover:shadow-md"
             icon={<SearchOutlined className="mr-1.5 text-base" />}
           >
             Search
