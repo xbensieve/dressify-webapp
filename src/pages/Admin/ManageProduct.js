@@ -14,12 +14,16 @@ import {
   Descriptions,
   Empty,
   Image,
+  Modal,
 } from "antd";
 import { motion } from "framer-motion";
 import { UploadOutlined } from "@ant-design/icons";
 import productApi from "../../api/productApi";
 import categoryApi from "../../api/categoryApi";
 import validateProductForm from "../../utils/validateProductForm";
+
+const { confirm } = Modal;
+
 const ManageProduct = () => {
   const [form] = Form.useForm();
   const [categories, setCategories] = useState([]);
@@ -137,31 +141,51 @@ const ManageProduct = () => {
     )
       return;
 
-    setLoading(true);
-    const formData = new FormData();
-    formData.append("product", JSON.stringify(product));
-    formData.append("variations", JSON.stringify(variations));
-    images.forEach((img) => formData.append("images", img));
-    try {
-      const response = await productApi.addProduct(formData);
-      if (response.success === true) {
-        message.success("Product added successfully");
-        form.resetFields();
-        setProduct({ name: "", description: "", price: "", category_id: "" });
-        setVariations([{ size: "", color: "", price: "", stock_quantity: "" }]);
-        setImages([]);
-        setSelectedCategory(null);
-        setLiveData(null);
-        return;
-      } else {
-        message.error(response.message);
-        return;
-      }
-    } catch (err) {
-      message.error(`Error: ${err.response?.data?.message || err.message}`);
-    } finally {
-      setLoading(false);
-    }
+    // Confirm before submitting
+    confirm({
+      title: "Confirm Submission",
+      content: "Are you sure you want to add this product?",
+      okText: "Yes",
+      okType: "primary",
+      cancelText: "No",
+      onOk: async () => {
+        setLoading(true);
+        const formData = new FormData();
+        formData.append("product", JSON.stringify(product));
+        formData.append("variations", JSON.stringify(variations));
+        images.forEach((img) => formData.append("images", img));
+        try {
+          const response = await productApi.addProduct(formData);
+          if (response.success === true) {
+            message.success("Product added successfully");
+            form.resetFields();
+            setProduct({
+              name: "",
+              description: "",
+              price: "",
+              category_id: "",
+            });
+            setVariations([
+              { size: "", color: "", price: "", stock_quantity: "" },
+            ]);
+            setImages([]);
+            setSelectedCategory(null);
+            setLiveData(null);
+            return;
+          } else {
+            message.error(response.message);
+            return;
+          }
+        } catch (err) {
+          message.error(`Error: ${err.response?.data?.message || err.message}`);
+        } finally {
+          setLoading(false);
+        }
+      },
+      onCancel() {
+        message.info("Submission cancelled");
+      },
+    });
   };
 
   const handleCancel = () => {

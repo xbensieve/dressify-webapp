@@ -13,7 +13,7 @@ const validateProductForm = (
       "Please fill in all required fields (Name, Description, Price)"
     );
   }
-  if (product.name?.length < 2 || product.name?.length > 50) {
+  if (product.name?.length < 2 || product.name?.length > 100) {
     errors.push("Product name must be between 2 and 50 characters");
   }
   if (product.description?.length < 50) {
