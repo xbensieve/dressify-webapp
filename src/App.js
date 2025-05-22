@@ -16,6 +16,7 @@ import RequireRole from "./components/RequireRole";
 import SearchPage from "./pages/Product/SearchPage";
 import TermsAndPolicyPage from "./pages/Common/TermsAndPolicyPage";
 import ProductDetailPage from "./pages/Product/ProductDetailPage";
+import Cart from "./pages/Cart/Cart";
 function App() {
   return (
     <div className="App">
@@ -31,6 +32,7 @@ function App() {
             <Route path="/failed" element={<PaymentFailedPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/:id" element={<ProductDetailPage />} />
+            <Route path="/cart" element={<Cart />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
 
