@@ -5,12 +5,90 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Input, Button, Spin } from "antd";
 import { fetchAIResponse } from "../utils/geminiApi";
 
+const ChatSection = ({
+  messages,
+  message,
+  setMessage,
+  handleChat,
+  isLoading,
+  lastMessageRef,
+}) => (
+  <div className="flex flex-col h-[320px]">
+    <h2 className="text-sm font-semibold text-blue-600 mb-2">
+      Need help? Chat with us!
+    </h2>
+    <div className="flex-1 overflow-y-auto bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs">
+      {messages.map((msg, index) => (
+        <motion.div
+          key={index}
+          ref={index === messages.length - 1 ? lastMessageRef : null}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className={`mb-2 flex ${
+            msg.sender === "user" ? "justify-end" : "justify-start"
+          }`}
+        >
+          <div
+            className={`max-w-[70%] rounded-lg p-2 text-xs ${
+              msg.sender === "user"
+                ? "bg-blue-100 text-blue-800"
+                : "bg-gray-200 text-gray-800"
+            } word-break break-word`}
+          >
+            <span className="font-medium">
+              {msg.sender === "user" ? "You: " : "AI: "}
+            </span>
+            {msg.text}
+          </div>
+        </motion.div>
+      ))}
+    </div>
+    <div className="flex items-center gap-1 mt-2">
+      <Input
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder="Type your message..."
+        className="flex-1 text-xs"
+        size="small"
+        disabled={isLoading}
+      />
+      <Button
+        onClick={handleChat}
+        disabled={!message.trim() || isLoading}
+        type="primary"
+        icon={<FaPaperPlane />}
+        size="small"
+        className="bg-blue-600 hover:bg-blue-700 border-none"
+        aria-label="Send Message"
+      />
+      {isLoading && <Spin size="small" className="ml-1" />}
+    </div>
+  </div>
+);
+
+const ZaloSection = ({ openZaloChat }) => (
+  <div className="flex flex-col items-center justify-center h-[320px]">
+    <SiZalo size={40} className="text-green-500 mb-3" />
+    <p className="text-gray-700 text-center text-xs mb-3">
+      Connect with us on Zalo for faster support.
+    </p>
+    <button
+      onClick={openZaloChat}
+      className="bg-green-500 text-white px-4 py-1.5 rounded-full shadow-md hover:bg-green-600 transition-all duration-200 text-xs"
+      aria-label="Open Zalo"
+    >
+      Open Zalo
+    </button>
+  </div>
+);
+
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("chat");
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]); // Added messages state
-  const [isLoading, setIsLoading] = useState(false); // Loading state for API calls
+  const [messages, setMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const widgetRef = useRef(null);
   const lastMessageRef = useRef(null);
 
@@ -21,7 +99,7 @@ const ChatWidget = () => {
 
     const userMessage = { sender: "user", text: message };
     setMessages((prev) => [...prev, userMessage]);
-    setMessage(""); // Clear input field
+    setMessage("");
 
     try {
       setIsLoading(true);
@@ -66,12 +144,12 @@ const ChatWidget = () => {
     if (lastMessageRef.current) {
       lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]); // Scroll to the bottom when messages change
+  }, [messages]);
 
   return (
     <div
       ref={widgetRef}
-      className="fixed bottom-6 right-6 z-50 flex items-end gap-3 sm:gap-4"
+      className="fixed bottom-4 right-4 z-50 flex items-end gap-2"
     >
       <AnimatePresence>
         {isOpen && (
@@ -79,16 +157,16 @@ const ChatWidget = () => {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            transition={{ duration: 0.35 }}
-            className="w-full sm:w-80 max-w-[90vw] h-[480px] sm:h-[500px] bg-white rounded-2xl shadow-2xl p-4 border border-gray-100"
+            transition={{ duration: 0.3 }}
+            className="w-[90vw] max-w-[360px] h-[400px] bg-white rounded-xl shadow-2xl p-3 border border-gray-100"
           >
-            <div className="flex justify-between mb-4 border-b pb-2">
+            <div className="flex justify-between mb-3 border-b pb-1.5">
               <button
                 onClick={() => setActiveTab("chat")}
-                className={`flex-1 py-2 rounded-l-full font-medium text-sm transition ${
+                className={`flex-1 py-1.5 rounded-l-md font-medium text-xs transition-all duration-200 ${
                   activeTab === "chat"
                     ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-600"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
                 aria-label="Chat Tab"
               >
@@ -96,95 +174,40 @@ const ChatWidget = () => {
               </button>
               <button
                 onClick={() => setActiveTab("zalo")}
-                className={`flex-1 py-2 rounded-r-full font-medium text-sm transition ${
+                className={`flex-1 py-1.5 rounded-r-md font-medium text-xs transition-all duration-200 ${
                   activeTab === "zalo"
                     ? "bg-green-500 text-white"
-                    : "bg-gray-100 text-gray-600"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
                 aria-label="Zalo Tab"
               >
                 Zalo
               </button>
             </div>
-
             {activeTab === "chat" && (
-              <div className="flex flex-col h-[380px] sm:h-[380px]">
-                <h2 className="text-base font-semibold text-blue-600 mb-2">
-                  Need help? Chat with us!
-                </h2>
-                <div className="flex-1 overflow-y-auto bg-gray-50 border rounded-md p-3 text-sm text-gray-700 mb-3">
-                  {messages.map((msg, index) => (
-                    <p
-                      key={index}
-                      ref={
-                        index === messages.length - 1 ? lastMessageRef : null
-                      }
-                      className={`mb-2 ${
-                        msg.sender === "user"
-                          ? "text-right text-blue-600"
-                          : "text-left text-gray-700"
-                      }`}
-                    >
-                      {msg.sender === "user" ? "You: " : "AI: "}
-                      {msg.text}
-                    </p>
-                  ))}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Input
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Type your message..."
-                    className="flex-1"
-                    size="small"
-                    disabled={isLoading} // Disable input while loading
-                  />
-                  <Button
-                    onClick={handleChat}
-                    disabled={!message || isLoading}
-                    type="primary"
-                    icon={<FaPaperPlane />}
-                    size="small"
-                    className="bg-blue-600 hover:bg-blue-700"
-                    aria-label="Send Message"
-                  />
-                  {isLoading && (
-                    <Spin size="small" className="ml-2" /> // Add spinner here
-                  )}
-                </div>
-              </div>
+              <ChatSection
+                messages={messages}
+                message={message}
+                setMessage={setMessage}
+                handleChat={handleChat}
+                isLoading={isLoading}
+                lastMessageRef={lastMessageRef}
+              />
             )}
-
             {activeTab === "zalo" && (
-              <div className="flex flex-col items-center justify-center h-full">
-                <SiZalo size={48} className="text-green-500 mb-4" />
-                <p className="text-gray-700 text-center mb-4">
-                  Connect with us on Zalo for faster support.
-                </p>
-                <button
-                  onClick={openZaloChat}
-                  className="bg-green-500 text-white px-5 py-2 rounded-full shadow-md hover:bg-green-600 transition"
-                  aria-label="Open Zalo"
-                >
-                  Open Zalo
-                </button>
-              </div>
+              <ZaloSection openZaloChat={openZaloChat} />
             )}
           </motion.div>
         )}
       </AnimatePresence>
-
-      <div className="flex flex-col items-center space-y-1">
-        <motion.button
-          onClick={toggleChat}
-          className="bg-gradient-to-tr from-blue-600 to-indigo-600 text-white p-4 rounded-full shadow-xl hover:shadow-2xl transition-all"
-          aria-label="Toggle Chat"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <FaComments size={22} />
-        </motion.button>
-      </div>
+      <motion.button
+        onClick={toggleChat}
+        className="bg-gradient-to-tr from-purple-500 to-purple-700 text-white p-3 rounded-full shadow-xl hover:bg-gradient-to-tr hover:from-purple-600 hover:to-purple-800 hover:shadow-2xl transition-all duration-200"
+        aria-label="Toggle Chat"
+        whileTap={{ scale: 0.9 }}
+      >
+        <FaComments size={20} />
+      </motion.button>
     </div>
   );
 };
