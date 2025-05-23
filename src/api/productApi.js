@@ -38,14 +38,13 @@ const saveCacheToStorage = () => {
 loadCacheFromStorage();
 
 const searchProducts = async ({
-  keyword,
-  minPrice,
-  maxPrice,
-  sortBy,
-  page,
-  limit,
+  keyword = "", // Default to empty string
+  minPrice = null, // No minimum price filter
+  maxPrice = null, // No maximum price filter
+  sortBy = "createdAt:desc", // Default sort by newest
+  page = 1, // Default to first page
+  limit = 10,
 }) => {
-  // Normalize and create cache key from all query parameters
   const cacheKey = `product_search_${keyword?.trim().toLowerCase() || ""}_${
     minPrice || ""
   }_${maxPrice || ""}_${sortBy || ""}_${page || ""}_${limit || ""}`;

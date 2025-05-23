@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import categoryApi from "../api/categoryApi";
 import { Button } from "antd";
+import { useNavigate } from "react-router-dom";
 const Gallery = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [categories, setCategories] = useState([]);
   const [error, setError] = useState(null);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -59,22 +60,8 @@ const Gallery = () => {
               key={category._id}
               type="default"
               size="large"
-              className="rounded-full bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 shadow-md transition-all duration-300"
-              style={{
-                backgroundImage: `url(${images[currentIndex]})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                backdropFilter: "blur(5px)",
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
-                position: "relative",
-                overflow: "hidden",
-                color: "white",
-                fontWeight: "bold",
-                textShadow: "1px 1px 2px rgba(0, 0, 0, 0.7)",
-                padding: "10px 20px",
-                borderRadius: "9999px",
-                transition: "transform 0.3s ease",
-              }}
+              className="rounded-full font-serif bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 shadow-md transition-all duration-300 active:scale-95 animate-blink"
+              onClick={() => navigate(`/search?keyword=${category.name}`)}
             >
               {category.name}
             </Button>

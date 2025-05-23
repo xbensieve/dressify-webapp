@@ -1,13 +1,11 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import HomePage from "./pages/HomePage";
+import HomePage from "./pages/Common/HomePage";
 import MainLayout from "./components/layout/MainLayout";
 import ContactUsPage from "./pages/Common/ContactUsPage";
 import AboutUsPage from "./pages/Common/AboutUsPage";
-import PaymentSuccessPage from "./pages/PaymentSuccessPage";
-import PaymentFailedPage from "./pages/PaymentFailedPage";
-import NotFoundPage from "./pages/NotFoundPage";
-import Login from "./pages/Login";
+import NotFoundPage from "./pages/Common/NotFoundPage";
+import Login from "./pages/Common/Login";
 import Dashboard from "./pages/Admin/Dashboard";
 import ManageCategory from "./pages/Admin/ManageCategory";
 import ManageProduct from "./pages/Admin/ManageProduct";
@@ -28,14 +26,11 @@ function App() {
             <Route path="/contact" element={<ContactUsPage />} />
             <Route path="/about-us" element={<AboutUsPage />} />
             <Route path="/terms-and-policy" element={<TermsAndPolicyPage />} />
-            <Route path="/success" element={<PaymentSuccessPage />} />
-            <Route path="/failed" element={<PaymentFailedPage />} />
             <Route path="/search" element={<SearchPage />} />
-            <Route path="/:id" element={<ProductDetailPage />} />
+            <Route path="/search/:id" element={<ProductDetailPage />} />
             <Route path="/cart" element={<Cart />} />
-            <Route path="*" element={<NotFoundPage />} />
           </Route>
-
+          <Route path="*" element={<NotFoundPage />} />
           {/* Admin */}
           <Route
             path="/admin"

@@ -178,6 +178,7 @@ const Header = () => {
                 type="button"
                 className="ml-4 text-gray-600 hover:text-gray-800 focus:outline-none"
                 aria-label="Cart"
+                onClick={() => navigate("/cart")}
               >
                 <svg
                   className="w-6 h-6"

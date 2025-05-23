@@ -13,7 +13,7 @@ import {
 } from "antd";
 import { FilterOutlined } from "@ant-design/icons";
 import productApi from "../../api/productApi";
-import FilterSidebar from "../../components/FilterSideBar";
+import FilterSidebar from "../../components/product/FilterSideBar";
 
 const { Title, Text } = Typography;
 
@@ -115,7 +115,7 @@ const SearchPage = () => {
             <Row gutter={[16, 16]}>
               {products.map((product) => (
                 <Col xs={12} sm={12} md={8} lg={6} key={product._id}>
-                  <Link to={`/${product._id}`}>
+                  <Link to={`/search/${product._id}`}>
                     <Card
                       hoverable
                       className="h-full shadow-md hover:shadow-lg transition-shadow duration-300"
