@@ -1,16 +1,16 @@
 import { motion } from "framer-motion";
 import { GoogleLogin } from "@react-oauth/google";
 import { Divider, Alert, message } from "antd";
-import Footer from "../components/Footer";
-import { loginApi, loginWithGoogle } from "../api/loginApi";
+import Footer from "../../components/Footer";
+import { loginApi, loginWithGoogle } from "../../api/loginApi";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-import Loading from "../components/Loading";
-import LoginImage from "../components/LoginImage";
-import { AuthContext } from "../context/AuthContext";
-import userApi from "../api/userApi";
-import LoginForm from "../components/LoginForm";
-import RegistrationForm from "../components/RegistrationForm";
+import Loading from "../../components/Loading";
+import LoginImage from "../../components/LoginImage";
+import { AuthContext } from "../../context/AuthContext";
+import userApi from "../../api/userApi";
+import LoginForm from "../../components/LoginForm";
+import RegistrationForm from "../../components/RegistrationForm";
 
 const Login = () => {
   const navigate = useNavigate();
