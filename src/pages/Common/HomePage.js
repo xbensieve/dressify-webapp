@@ -35,16 +35,7 @@ const HomePage = () => {
             sliderInView ? "opacity-100" : "opacity-0"
           }`}
         >
-          <div className="w-full lg:w-2/3">
-            <Slider />
-          </div>
-          <div className="w-full lg:w-1/3 h-full">
-            <img
-              src="/image9.jpg"
-              alt="Promo Icons"
-              className="w-full h-auto"
-            />
-          </div>
+          <Slider />
         </div>
       </div>
 

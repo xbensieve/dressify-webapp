@@ -10,13 +10,15 @@ const FilterSidebar = ({ filters, onFilterChange }) => {
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md">
-      <Text strong className="!text-lg mb-4 block">
+    <div className="bg-white p-4 rounded-lg shadow-md text-left">
+      <Text strong className="!text-lg mb-4 block text-left">
         Filters
       </Text>
 
       <div className="mb-6">
-        <Text strong>Sort By</Text>
+        <Text strong className="text-left block">
+          Sort By
+        </Text>
         <Select
           className="w-full mt-2"
           placeholder="Sort by"
@@ -30,7 +32,9 @@ const FilterSidebar = ({ filters, onFilterChange }) => {
       </div>
 
       <div className="mb-6">
-        <Text strong>Category</Text>
+        <Text strong className="text-left block">
+          Category
+        </Text>
         <Select
           className="w-full mt-2"
           placeholder="Select category"
@@ -46,7 +50,9 @@ const FilterSidebar = ({ filters, onFilterChange }) => {
       </div>
 
       <div className="mb-6">
-        <Text strong>Price Range</Text>
+        <Text strong className="text-left block">
+          Price Range
+        </Text>
         <Slider
           range
           min={0}
@@ -62,7 +68,9 @@ const FilterSidebar = ({ filters, onFilterChange }) => {
       </div>
 
       <div className="mb-6">
-        <Text strong>Size</Text>
+        <Text strong className="text-left block">
+          Size
+        </Text>
         <Select
           className="w-full mt-2"
           placeholder="Select size"
@@ -78,7 +86,9 @@ const FilterSidebar = ({ filters, onFilterChange }) => {
       </div>
 
       <div className="mb-6">
-        <Text strong>Color</Text>
+        <Text strong className="text-left block">
+          Color
+        </Text>
         <Select
           className="w-full mt-2"
           placeholder="Select color"
