@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -9,6 +9,7 @@ import {
   Alert,
   message,
   Spin,
+  Checkbox,
 } from "antd";
 import cartApi from "../../api/cartApi";
 import { AuthContext } from "../../context/AuthContext";
@@ -23,44 +24,48 @@ const Cart = () => {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const informedRef = React.useRef(false);
+  const [selectedItems, setSelectedItems] = useState([]); // Track selected item IDs
+  const informedRef = useRef(false);
   const token = Cookies.get("access_token");
 
   // Handle authentication and user setup
   useEffect(() => {
     if (token) {
       const decodedToken = decodeAccessToken(token);
-      const userInfo = {
+      setUser({
         id: decodedToken.id,
         email: decodedToken.email,
         name: decodedToken.name,
         role: decodedToken.role,
-      };
-      setUser(userInfo);
+      });
     }
   }, [token, setUser]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!user && !informedRef.current && !token) {
-      message.info("You need to be logged in to view your cart.");
+      message.info("Please log in to view your cart.");
       informedRef.current = true;
       navigate("/login");
     }
   }, [user, navigate, token]);
 
-  // Fetch cart data
+  // Fetch cart data and initialize selected items
   useEffect(() => {
     const fetchCartData = async () => {
       try {
         const response = await cartApi.getCart();
         if (response.data.success) {
           setCart(response.data.data.cart);
+          // Initialize all items as selected by default
+          setSelectedItems(
+            response.data.data.cart.items.map((item) => item.cartItemId)
+          );
         } else {
-          setError("Failed to fetch cart data. Please try again.");
+          setError("Failed to fetch cart data.");
         }
       } catch (err) {
-        setError("Error fetching cart data. Please try again later.");
+        setError("Error fetching cart data. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -91,6 +96,8 @@ const Cart = () => {
       const response = await cartApi.removeCartItem(cartItemId);
       if (response.data.success) {
         setCart(response.data.data.cart);
+        // Remove item from selectedItems
+        setSelectedItems((prev) => prev.filter((id) => id !== cartItemId));
       } else {
         setError("Failed to remove item.");
       }
@@ -99,10 +106,28 @@ const Cart = () => {
     }
   };
 
+  // Handle checkbox change
+  const handleCheckboxChange = (cartItemId) => {
+    setSelectedItems((prev) =>
+      prev.includes(cartItemId)
+        ? prev.filter((id) => id !== cartItemId)
+        : [...prev, cartItemId]
+    );
+  };
+
+  // Handle select all toggle
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      setSelectedItems(cart.items.map((item) => item.cartItemId));
+    } else {
+      setSelectedItems([]);
+    }
+  };
+
   // Loading state
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center min-h-[50vh]">
         <Spin size="large" />
       </div>
     );
@@ -111,7 +136,7 @@ const Cart = () => {
   // Error state
   if (error) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-6">
         <Alert message={error} type="error" showIcon />
       </div>
     );
@@ -120,7 +145,7 @@ const Cart = () => {
   // Empty cart state
   if (!cart || !cart.items || cart.items.length === 0) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8 text-center">
+      <div className="max-w-4xl mx-auto px-4 py-6 text-center">
         <Alert message="Your cart is empty." type="info" showIcon />
         <Link
           to="/"
@@ -132,8 +157,11 @@ const Cart = () => {
     );
   }
 
-  // Calculate totals
-  const subtotal = cart.items.reduce(
+  // Calculate totals for selected items
+  const selectedCartItems = cart.items.filter((item) =>
+    selectedItems.includes(item.cartItemId)
+  );
+  const subtotal = selectedCartItems.reduce(
     (sum, item) => sum + item.variation.price * item.quantity,
     0
   );
@@ -141,133 +169,149 @@ const Cart = () => {
   const discount = 0; // Placeholder for discounts
   const total = subtotal + vat - discount;
 
-  return (
-    <section className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Cart Items */}
-        <div className="flex-1">
-          <header className="flex justify-between items-center mb-6">
-            <Title level={2} className="text-2xl font-bold text-gray-900">
-              Shopping Cart
-            </Title>
-            <Text className="text-gray-600 hidden sm:block">Price</Text>
-          </header>
+  // Handle checkout navigation
+  const handleCheckout = () => {
+    if (selectedItems.length === 0) {
+      message.warning(
+        "Please select at least one item to proceed to checkout."
+      );
+      return;
+    }
+    navigate("/checkout", { state: { selectedItems } });
+  };
 
-          <Space direction="vertical" size="large" className="w-full">
-            <AnimatePresence>
-              {cart.items.map((item, index) => (
-                <motion.div
-                  key={item.cartItemId}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                  className="border-b border-gray-200 pb-4"
-                >
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+  return (
+    <section className="max-w-7xl mx-auto px-4 py-6 lg:flex lg:gap-8">
+      {/* Cart Items */}
+      <div className="flex-1 mb-6 lg:mb-0">
+        <div className="flex justify-between items-center mb-4">
+          <Title level={2} className="text-xl font-bold text-gray-900">
+            Shopping Cart
+          </Title>
+          <Checkbox
+            onChange={(e) => handleSelectAll(e.target.checked)}
+            checked={selectedItems.length === cart.items.length}
+            indeterminate={
+              selectedItems.length > 0 &&
+              selectedItems.length < cart.items.length
+            }
+          >
+            Select All
+          </Checkbox>
+        </div>
+        <Space direction="vertical" size="middle" className="w-full">
+          <AnimatePresence>
+            {cart.items.map((item, index) => (
+              <motion.div
+                key={item.cartItemId}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, delay: index * 0.05 }}
+                className="border-b border-gray-200 py-4"
+              >
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    checked={selectedItems.includes(item.cartItemId)}
+                    onChange={() => handleCheckboxChange(item.cartItemId)}
+                    className="mt-1"
+                  />
+                  <Link to={`/search/${item.product._id}`}>
+                    <img
+                      src={item.product.images[0]}
+                      alt={item.product.name}
+                      className="w-20 h-20 rounded-md object-cover"
+                    />
+                  </Link>
+                  <div className="flex-1">
                     <Link to={`/search/${item.product._id}`}>
-                      <img
-                        src={item.product.images[0]}
-                        alt={item.product.name}
-                        className="w-24 h-24 rounded-md object-cover"
-                      />
+                      <Text className="text-base font-medium text-gray-900 hover:text-blue-600">
+                        {item.product.name}
+                      </Text>
                     </Link>
-                    <div className="flex-1">
-                      <Link to={`/search/${item.product._id}`}>
-                        <Text className="text-lg font-medium text-gray-900 hover:text-blue-600">
-                          {item.product.name}
+                    <div className="mt-1 text-sm text-gray-600 space-y-0.5">
+                      <div>Size: {item.variation.size}</div>
+                      <div>Color: {item.variation.color}</div>
+                      <div>Unit price: ${item.variation.price.toFixed(2)}</div>
+                      <div>
+                        <Text className="text-base font-semibold text-gray-900">
+                          Total: $
+                          {(item.variation.price * item.quantity).toFixed(2)}
                         </Text>
-                      </Link>
-                      <div className="mt-2 space-y-1 text-sm text-gray-600">
-                        <div>Size: {item.variation.size}</div>
-                        <div>Color: {item.variation.color}</div>
-                        <div>Unit price: {item.variation.price}</div>
-                        <div className="sm:hidden">
-                          <Text className="text-base font-semibold text-gray-900">
-                            ${(item.variation.price * item.quantity).toFixed(2)}
-                          </Text>
-                        </div>
-                      </div>
-                      <div className="mt-3 flex items-center gap-3">
-                        <InputNumber
-                          min={1}
-                          value={item.quantity}
-                          onChange={(value) =>
-                            handleQuantityChange(item.cartItemId, value)
-                          }
-                          id={`Line${index + 1}Qty`}
-                          className="w-16"
-                        />
-                        <Button
-                          type="link"
-                          danger
-                          onClick={() => handleRemoveItem(item.cartItemId)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          Remove
-                        </Button>
                       </div>
                     </div>
-                    <div className="hidden sm:block text-right">
-                      <Text className="text-base font-semibold text-gray-900">
-                        ${(item.variation.price * item.quantity).toFixed(2)}
-                      </Text>
+                    <div className="mt-2 flex items-center gap-2 flex-wrap">
+                      <InputNumber
+                        min={1}
+                        value={item.quantity}
+                        onChange={(value) =>
+                          handleQuantityChange(item.cartItemId, value)
+                        }
+                        id={`Line${index + 1}Qty`}
+                        className="w-16"
+                        size="small"
+                      />
+                      <Button
+                        type="link"
+                        danger
+                        onClick={() => handleRemoveItem(item.cartItemId)}
+                        className="text-red-500 hover:text-red-700 text-sm"
+                      >
+                        Remove
+                      </Button>
                     </div>
                   </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </Space>
-        </div>
-
-        {/* Summary */}
-        <motion.div
-          className="lg:w-96 bg-gray-100 p-6 rounded-lg shadow-sm sticky top-4"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="space-y-4">
-            <div className="flex justify-between text-gray-700">
-              <Text>
-                Subtotal ({cart.items.length} item
-                {cart.items.length !== 1 ? "s" : ""}):
-              </Text>
-              <Text className="font-semibold">${subtotal.toFixed(2)}</Text>
-            </div>
-            <div className="flex justify-between text-gray-700">
-              <Text>Estimated Tax (VAT):</Text>
-              <Text>${vat.toFixed(2)}</Text>
-            </div>
-            {discount > 0 && (
-              <div className="flex justify-between text-green-600">
-                <Text>Discount:</Text>
-                <Text>-${discount.toFixed(2)}</Text>
-              </div>
-            )}
-            <div className="flex justify-between text-lg font-semibold text-gray-900">
-              <Text>Total:</Text>
-              <Text>${total.toFixed(2)}</Text>
-            </div>
-            <Button
-              type="primary"
-              size="large"
-              className="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold rounded-md"
-              onClick={() => navigate("/checkout")}
-            >
-              Proceed to Checkout
-            </Button>
-            <div className="text-center">
-              <Link
-                to="/"
-                className="text-blue-600 hover:text-blue-800 text-sm"
-              >
-                Continue shopping
-              </Link>
-            </div>
-          </div>
-        </motion.div>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </Space>
       </div>
+
+      {/* Summary */}
+      <motion.div
+        className="lg:w-80 bg-gray-100 p-4 rounded-lg shadow-sm lg:sticky lg:top-4 fixed bottom-0 left-0 right-0 z-10 lg:z-0 lg:bottom-auto lg:right-auto lg:left-auto lg:mt-6"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="space-y-3">
+          <div className="flex justify-between text-gray-700 text-sm">
+            <Text>
+              Subtotal ({selectedCartItems.length} item
+              {selectedCartItems.length !== 1 ? "s" : ""}):
+            </Text>
+            <Text className="font-semibold">${subtotal.toFixed(2)}</Text>
+          </div>
+          <div className="flex justify-between text-gray-700 text-sm">
+            <Text>Estimated Tax (VAT):</Text>
+            <Text>${vat.toFixed(2)}</Text>
+          </div>
+          {discount > 0 && (
+            <div className="flex justify-between text-green-600 text-sm">
+              <Text>Discount:</Text>
+              <Text>-${discount.toFixed(2)}</Text>
+            </div>
+          )}
+          <div className="flex justify-between text-base font-semibold text-gray-900">
+            <Text>Total:</Text>
+            <Text>${total.toFixed(2)}</Text>
+          </div>
+          <Button
+            type="primary"
+            size="large"
+            className="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold rounded-md mt-4"
+            onClick={handleCheckout}
+          >
+            Proceed to Checkout
+          </Button>
+          <div className="text-center mt-2">
+            <Link to="/" className="text-blue-600 hover:text-blue-800 text-sm">
+              Continue shopping
+            </Link>
+          </div>
+        </div>
+      </motion.div>
     </section>
   );
 };

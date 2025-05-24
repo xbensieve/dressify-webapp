@@ -1,8 +1,11 @@
 import { Outlet, useLocation } from "react-router-dom";
-import { Breadcrumb } from "antd";
+import { Breadcrumb, Button } from "antd";
+import { UpOutlined } from "@ant-design/icons";
 import Header from "../Header";
 import Footer from "../Footer";
 import ChatWidget from "../ChatWidget";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Helper function to generate breadcrumb items from pathname
 const getBreadcrumbItems = (pathname) => {
@@ -27,6 +30,23 @@ const getBreadcrumbItems = (pathname) => {
 const MainLayout = () => {
   const location = useLocation();
   const breadcrumbItems = getBreadcrumbItems(location.pathname);
+  const [showTopBtn, setShowTopBtn] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowTopBtn(true);
+      } else {
+        setShowTopBtn(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <div className="main-layout relative min-h-screen flex flex-col">
@@ -56,6 +76,32 @@ const MainLayout = () => {
       <footer className="mt-auto">
         <Footer />
       </footer>
+      <AnimatePresence>
+        {showTopBtn && (
+          <motion.div
+            key="back-to-top"
+            initial={{ opacity: 0, y: 20, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.8 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="
+              fixed bottom-24 md:bottom-20 right-6 sm:right-5 z-50
+              "
+            style={{ pointerEvents: "auto" }}
+          >
+            <Button
+              type="primary"
+              shape="circle"
+              size="large"
+              icon={<UpOutlined />}
+              onClick={scrollToTop}
+              aria-label="Back to top"
+              title="Back to Top"
+              className="shadow-lg hover:shadow-xl transition-shadow duration-300"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
       <ChatWidget />
     </div>
   );

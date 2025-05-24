@@ -33,6 +33,10 @@ const SearchPage = () => {
   });
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [keyword, filters]);
+
+  useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
