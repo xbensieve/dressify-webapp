@@ -176,12 +176,12 @@ const Header = () => {
               <SearchBar />
               <button
                 type="button"
-                className="ml-4 text-gray-600 hover:text-gray-800 focus:outline-none"
-                aria-label="Cart"
                 onClick={() => navigate("/cart")}
+                aria-label="Cart"
+                className="group relative ml-4 p-3 rounded-2xl bg-gradient-to-br from-white via-gray-100 to-gray-200 border border-gray-300 shadow-[inset_0_0_4px_#fff,0_4px_12px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_18px_rgba(168,85,247,0.3)] hover:border-purple-400 transition-all duration-300 ease-out transform hover:-translate-y-1 active:translate-y-0.5 active:shadow-inner"
               >
                 <svg
-                  className="w-6 h-6"
+                  className="w-6 h-6 text-gray-600 group-hover:text-purple-600 transition duration-200"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
