@@ -152,7 +152,7 @@ const Header = () => {
           initial={{ x: "-100%" }}
           animate={{ x: isMenuOpen ? "0%" : "-100%" }}
           transition={{ duration: 0.3 }}
-          className="fixed top-0 left-0 w-64 h-full bg-white shadow-lg lg:hidden z-50"
+          className="fixed top-0 left-0 w-64 h-full bg-white shadow-lg lg:hidden z-[100]"
         >
           <div className="flex flex-col space-y-5 p-4">
             {MenuItems.map((item, index) => (

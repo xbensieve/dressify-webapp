@@ -32,6 +32,10 @@ const Login = () => {
     }
   }, [location.state]);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   const onFinish = async (values) => {
     setIsLoading(true);
     try {
