@@ -1,0 +1,46 @@
+.custom-ant-select .ant-select-selector {
+  border-radius: 0 !important;
+  height: 28px !important;
+  font-size: 12px !important;
+  padding: 0 8px !important;
+}
+
+@media (min-width: 640px) {
+  .custom-ant-select .ant-select-selector {
+    height: 32px !important;
+    font-size: 14px !important;
+    padding: 0 10px !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .custom-ant-select .ant-select-selector {
+    height: 36px !important;
+    font-size: 16px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .custom-ant-select .ant-select-selector {
+    height: 32px !important;
+    font-size: 16px !important;
+  }
+}
+
+/* Ensure dropdown menu is readable and has no rounded corners */
+.custom-ant-select .ant-select-dropdown {
+  border-radius: 0 !important;
+  font-size: 12px !important;
+}
+
+@media (min-width: 640px) {
+  .custom-ant-select .ant-select-dropdown {
+    font-size: 14px !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .custom-ant-select .ant-select-dropdown {
+    font-size: 16px !important;
+  }
+}

@@ -45,6 +45,10 @@ const searchProducts = async ({
   page = 1, // Default to first page
   limit = 10,
 }) => {
+  //if keyword is not provided, return an empty array
+  if (!keyword) {
+    return [];
+  }
   const cacheKey = `product_search_${keyword?.trim().toLowerCase() || ""}_${
     minPrice || ""
   }_${maxPrice || ""}_${sortBy || ""}_${page || ""}_${limit || ""}`;
