@@ -15,9 +15,9 @@ const ChatSection = ({
 }) => (
   <div className="flex flex-col h-[320px]">
     <h2 className="text-sm font-semibold text-blue-600 mb-2">
-      Need help? Chat with us!
+      AI Assistant Conversation
     </h2>
-    <div className="flex-1 overflow-y-auto bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs">
+    <div className="flex-1 overflow-y-auto rounded-lg p-3 text-xs">
       {messages.map((msg, index) => (
         <motion.div
           key={index}
@@ -25,7 +25,7 @@ const ChatSection = ({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className={`mb-2 flex ${
+          className={`mb-2 flex font-inter ${
             msg.sender === "user" ? "justify-end" : "justify-start"
           }`}
         >
@@ -49,7 +49,7 @@ const ChatSection = ({
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Type your message..."
-        className="flex-1 text-xs"
+        className="flex-1 text-md"
         size="small"
         disabled={isLoading}
       />
@@ -69,13 +69,13 @@ const ChatSection = ({
 
 const ZaloSection = ({ openZaloChat }) => (
   <div className="flex flex-col items-center justify-center h-[320px]">
-    <SiZalo size={40} className="text-green-500 mb-3" />
-    <p className="text-gray-700 text-center text-xs mb-3">
+    <SiZalo size={40} className="text-blue-500 mb-3" />
+    <p className="text-gray-700 text-center text-md mb-3">
       Connect with us on Zalo for faster support.
     </p>
     <button
       onClick={openZaloChat}
-      className="bg-green-500 text-white px-4 py-1.5 rounded-full shadow-md hover:bg-green-600 transition-all duration-200 text-xs"
+      className="bg-blue-600 text-white px-4 py-2 font-semibold rounded-full shadow-md hover:opacity-75 transition-all duration-200 text-sm"
       aria-label="Open Zalo"
     >
       Open Zalo
@@ -163,7 +163,7 @@ const ChatWidget = () => {
             <div className="flex justify-between mb-3 border-b pb-1.5">
               <button
                 onClick={() => setActiveTab("chat")}
-                className={`flex-1 py-1.5 rounded-l-md font-medium text-xs transition-all duration-200 ${
+                className={`flex-1 py-1.5 rounded-l-md font-inter text-xs transition-all duration-200 ${
                   activeTab === "chat"
                     ? "bg-blue-600 text-white"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -176,7 +176,7 @@ const ChatWidget = () => {
                 onClick={() => setActiveTab("zalo")}
                 className={`flex-1 py-1.5 rounded-r-md font-medium text-xs transition-all duration-200 ${
                   activeTab === "zalo"
-                    ? "bg-green-500 text-white"
+                    ? "bg-blue-500 text-white"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
                 aria-label="Zalo Tab"
@@ -202,7 +202,7 @@ const ChatWidget = () => {
       </AnimatePresence>
       <motion.button
         onClick={toggleChat}
-        className="bg-gradient-to-tr from-purple-500 to-purple-700 text-white p-3 rounded-full shadow-xl hover:bg-gradient-to-tr hover:from-purple-600 hover:to-purple-800 hover:shadow-2xl transition-all duration-200"
+        className="bg-black text-white p-3 rounded-full shadow-xl hover:bg-gradient-to-tr hover:opacity-75 hover:shadow-2xl transition-all duration-200"
         aria-label="Toggle Chat"
         whileTap={{ scale: 0.9 }}
       >

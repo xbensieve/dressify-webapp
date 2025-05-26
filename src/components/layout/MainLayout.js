@@ -90,14 +90,20 @@ const MainLayout = () => {
             style={{ pointerEvents: "auto" }}
           >
             <Button
-              type="primary"
               shape="circle"
               size="large"
               icon={<UpOutlined />}
               onClick={scrollToTop}
               aria-label="Back to top"
               title="Back to Top"
-              className="shadow-lg hover:shadow-xl transition-shadow duration-300"
+              className="shadow-lg bg-black text-white border-black hover:bg-white hover:text-black hover:opacity-75 active:bg-white active:text-black active:shadow-md transition-shadow duration-300"
+              style={{
+                backgroundColor: "#000000",
+                color: "#ffffff",
+                borderColor: "#000000",
+                transition:
+                  "background-color 0.3s, color 0.3s, box-shadow 0.3s",
+              }}
             />
           </motion.div>
         )}

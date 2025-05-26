@@ -67,7 +67,14 @@ const Gallery = () => {
         <Button
           type="primary"
           size="large"
-          className="rounded-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 shadow-xl transition-all duration-300"
+          className="rounded-full bg-white text-black border-black hover:opacity-80 shadow-[0_4px_12px_rgba(0,0,0,0.1)] active:bg-black active:text-white active:shadow-inner transition-all duration-300"
+          style={{
+            backgroundColor: "#ffffff",
+            color: "#000000",
+            borderColor: "#000000",
+            transition:
+              "opacity 0.3s, background-color 0.3s, color 0.3s, box-shadow 0.3s",
+          }}
         >
           All Categories
         </Button>
@@ -76,7 +83,14 @@ const Gallery = () => {
             key={category._id}
             type="default"
             size="large"
-            className="rounded-full font-serif bg-white text-gray-900 border border-gray-300 hover:bg-gray-100 shadow-md transition-all duration-300 active:scale-95"
+            className="rounded-full font-serif bg-white text-black border-black hover:opacity-80 shadow-[0_4px_12px_rgba(0,0,0,0.1)] active:bg-black active:text-white active:shadow-inner active:scale-95 transition-all duration-300"
+            style={{
+              backgroundColor: "#ffffff",
+              color: "#000000",
+              borderColor: "#000000",
+              transition:
+                "opacity 0.3s, background-color 0.3s, color 0.3s, box-shadow 0.3s, transform 0.3s",
+            }}
             onClick={() => navigate(`/search?keyword=${category.name}`)}
           >
             {category.name}

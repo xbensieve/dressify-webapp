@@ -178,10 +178,17 @@ const Header = () => {
                 type="button"
                 onClick={() => navigate("/cart")}
                 aria-label="Cart"
-                className="group relative ml-4 p-3 rounded-2xl bg-gradient-to-br from-white via-gray-100 to-gray-200 border border-gray-300 shadow-[inset_0_0_4px_#fff,0_4px_12px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_18px_rgba(168,85,247,0.3)] hover:border-purple-400 transition-all duration-300 ease-out transform hover:-translate-y-1 active:translate-y-0.5 active:shadow-inner"
+                className="group relative ml-4 p-3 rounded-2xl bg-white border border-black shadow-[inset_0_0_4px_#fff,0_4px_12px_rgba(0,0,0,0.1)] hover:opacity-80 active:bg-black active:border-white active:text-white active:shadow-inner transition-all duration-300 ease-out transform hover:-translate-y-1 active:translate-y-0.5"
+                style={{
+                  backgroundColor: "#ffffff",
+                  borderColor: "#000000",
+                  color: "#000000",
+                  transition:
+                    "opacity 0.3s, box-shadow 0.3s, transform 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s",
+                }}
               >
                 <svg
-                  className="w-6 h-6 text-gray-600 group-hover:text-purple-600 transition duration-200"
+                  className="w-6 h-6 text-black group-hover:opacity-80 transition duration-200"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"

@@ -182,8 +182,7 @@ const Cart = () => {
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-6 lg:flex lg:gap-8">
-      {/* Cart Items */}
-      <div className="flex-1 mb-6 lg:mb-0">
+      <div className="flex-1 mb-6 lg:mb-0 font-inter text-right lg:text-left">
         <div className="flex justify-between items-center mb-4">
           <Title level={2} className="text-xl font-bold text-gray-900">
             Shopping Cart
