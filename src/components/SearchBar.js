@@ -3,8 +3,8 @@ import { Input, Button } from "antd";
 import { SearchOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-
-const SearchBar = () => {
+import React, { memo } from "react";
+const SearchBar = memo(() => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchHistory, setSearchHistory] = useState([]);
   const [isFocused, setIsFocused] = useState(false);
@@ -133,6 +133,6 @@ const SearchBar = () => {
       )}
     </div>
   );
-};
+});
 
 export default SearchBar;
