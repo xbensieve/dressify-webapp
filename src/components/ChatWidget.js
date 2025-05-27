@@ -45,24 +45,35 @@ const ChatSection = ({
       ))}
     </div>
     <div className="flex items-center gap-1 mt-2">
-      <Input
+      <input
+        type="text"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            if (message.trim() && !isLoading) {
+              handleChat();
+            }
+          }
+        }}
+        className="flex-grow px-3 py-2 border rounded-full focus:outline-none text-sm"
         placeholder="Type your message..."
-        className="flex-1 text-md"
-        size="small"
-        disabled={isLoading}
+        aria-label="Chat input"
       />
-      <Button
-        onClick={handleChat}
-        disabled={!message.trim() || isLoading}
-        type="primary"
-        icon={<FaPaperPlane />}
-        size="small"
-        className="bg-blue-600 hover:bg-blue-700 border-none"
-        aria-label="Send Message"
-      />
-      {isLoading && <Spin size="small" className="ml-1" />}
+
+      {!isLoading ? (
+        <Button
+          onClick={handleChat}
+          disabled={!message.trim()}
+          icon={<FaPaperPlane />}
+          size="large"
+          className="border-none bg-transparent"
+          aria-label="Send Message"
+        />
+      ) : (
+        <Spin size="default" className="ml-1" />
+      )}
     </div>
   </div>
 );

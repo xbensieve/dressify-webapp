@@ -4,7 +4,7 @@ const VideoPlayer = () => {
   return (
     <div className="relative w-full max-w-4xl mx-auto">
       <video
-        className="w-full rounded-lg shadow-lg"
+        className="w-full rounded-none shadow-lg"
         controls
         preload="metadata"
         aria-label="Video player"
