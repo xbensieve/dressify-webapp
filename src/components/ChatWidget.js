@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
-import { FaComments, FaPaperPlane } from "react-icons/fa";
+import { FaComments, FaPaperPlane, FaTrash } from "react-icons/fa";
 import { SiZalo } from "react-icons/si";
 import { motion, AnimatePresence } from "framer-motion";
-import { Input, Button, Spin } from "antd";
-import { fetchAIResponse } from "../utils/geminiApi";
+import { Button, Spin } from "antd";
 
 const ChatSection = ({
   messages,
@@ -12,11 +11,21 @@ const ChatSection = ({
   handleChat,
   isLoading,
   lastMessageRef,
+  clearChat,
 }) => (
   <div className="flex flex-col h-[320px]">
     <h2 className="text-sm font-semibold text-blue-600 mb-2">
       AI Assistant Conversation
     </h2>
+    <Button
+      onClick={clearChat}
+      icon={<FaTrash />}
+      size="small"
+      className="border-none bg-transparent text-gray-600 hover:text-red-600"
+      aria-label="Clear Chat"
+    >
+      Clear
+    </Button>
     <div className="flex-1 overflow-y-auto rounded-lg p-3 text-xs">
       {messages.map((msg, index) => (
         <motion.div
@@ -102,33 +111,118 @@ const ChatWidget = () => {
   const [isLoading, setIsLoading] = useState(false);
   const widgetRef = useRef(null);
   const lastMessageRef = useRef(null);
+  const ws = useRef(null);
+
+  const [userId, setUserId] = useState(() => {
+    const storedId = localStorage.getItem("chatUserId");
+    if (storedId) return storedId;
+
+    const newId = `guest_${Math.random().toString(36).slice(2)}`;
+    localStorage.setItem("chatUserId", newId);
+    return newId;
+  });
+
+  useEffect(() => {
+    let url = process.env.REACT_APP_WEBSOCKET_ENDPOINT;
+
+    if (!url) {
+      url = "ws://localhost:5000";
+    } else {
+      url = `wss://${url}`;
+    }
+
+    ws.current = new WebSocket(`${url}?userId=${userId}`);
+    ws.current.onopen = () => {
+      console.log("WebSocket connected");
+      ws.current.send(JSON.stringify({ type: "init", userId }));
+    };
+    ws.current.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.error) {
+          setMessages((prev) => [...prev, { sender: "ai", text: data.error }]);
+        } else if (data.history) {
+          setMessages(
+            data.history.map((msg) => ({
+              sender: msg.role,
+              text: msg.text,
+            }))
+          );
+        }
+      } catch (err) {
+        console.error("WebSocket message parsing error:", err);
+        setMessages((prev) => [
+          ...prev,
+          { sender: "ai", text: "Error receiving message" },
+        ]);
+      }
+      setIsLoading(false);
+    };
+    ws.current.onclose = () => {
+      console.log("WebSocket disconnected");
+    };
+    ws.current.onerror = (err) => {
+      console.error("WebSocket error:", err);
+      setMessages((prev) => [
+        ...prev,
+        { sender: "ai", text: "WebSocket connection error" },
+      ]);
+      setIsLoading(false);
+    };
+    return () => {
+      ws.current && ws.current.close();
+    };
+  }, [userId]);
+
+  const clearChat = () => {
+    // Generate a new user ID
+    const newId = `guest_${Math.random().toString(36).slice(2)}`;
+
+    // Clear messages from UI
+    setMessages([]);
+
+    // Update local state and storage
+    setUserId(newId);
+    localStorage.setItem("chatUserId", newId);
+
+    // Close existing WebSocket before recreating
+    if (ws.current.readyState === WebSocket.OPEN) {
+      // Notify server to clear old user session
+      ws.current.send(JSON.stringify({ type: "clear", userId }));
+      ws.current.close();
+    }
+
+    // Reinitialize WebSocket with new userId
+    ws.current = new WebSocket(`ws://localhost:5000?userId=${newId}`);
+
+    ws.current.onopen = () => {
+      console.log("WebSocket reconnected for new session");
+      ws.current.send(JSON.stringify({ type: "init", userId: newId }));
+    };
+
+    // Reuse previous handlers
+    ws.current.onmessage = ws.current.onmessage;
+    ws.current.onclose = ws.current.onclose;
+    ws.current.onerror = ws.current.onerror;
+  };
 
   const toggleChat = () => setIsOpen((prev) => !prev);
 
-  const handleChat = async () => {
-    if (!message.trim()) return;
+  const handleChat = () => {
+    if (!message.trim() || isLoading) return;
 
     const userMessage = { sender: "user", text: message };
     setMessages((prev) => [...prev, userMessage]);
     setMessage("");
+    setIsLoading(true);
 
-    try {
-      setIsLoading(true);
-      const aiResponse = await fetchAIResponse(message);
-      const aiMessage = {
-        sender: "ai",
-        text:
-          aiResponse?.candidates?.[0]?.content?.parts?.[0]?.text ||
-          "No response",
-      };
-      setMessages((prev) => [...prev, aiMessage]);
-    } catch (error) {
-      const errorMessage = {
-        sender: "ai",
-        text: "Sorry, something went wrong. Please try again later.",
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
+    if (ws.current.readyState === WebSocket.OPEN) {
+      ws.current.send(message);
+    } else {
+      setMessages((prev) => [
+        ...prev,
+        { sender: "ai", text: "WebSocket not connected" },
+      ]);
       setIsLoading(false);
     }
   };
@@ -201,6 +295,7 @@ const ChatWidget = () => {
                 message={message}
                 setMessage={setMessage}
                 handleChat={handleChat}
+                clearChat={clearChat}
                 isLoading={isLoading}
                 lastMessageRef={lastMessageRef}
               />
