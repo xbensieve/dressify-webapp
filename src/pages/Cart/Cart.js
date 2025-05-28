@@ -74,12 +74,9 @@ const Cart = () => {
     fetchCartData();
   }, [user]);
 
-  // Handle quantity update
-  const handleQuantityChange = async (cartItemId, value) => {
+  const handleQuantityChange = async (cartItemId, quantity) => {
     try {
-      const response = await cartApi.updateCartItem(cartItemId, {
-        quantity: value,
-      });
+      const response = await cartApi.updateCartItem(cartItemId, quantity);
       if (response.data.success) {
         setCart(response.data.data.cart);
       } else {
@@ -90,13 +87,11 @@ const Cart = () => {
     }
   };
 
-  // Handle item removal
   const handleRemoveItem = async (cartItemId) => {
     try {
       const response = await cartApi.removeCartItem(cartItemId);
       if (response.data.success) {
         setCart(response.data.data.cart);
-        // Remove item from selectedItems
         setSelectedItems((prev) => prev.filter((id) => id !== cartItemId));
       } else {
         setError("Failed to remove item.");
@@ -106,7 +101,6 @@ const Cart = () => {
     }
   };
 
-  // Handle checkbox change
   const handleCheckboxChange = (cartItemId) => {
     setSelectedItems((prev) =>
       prev.includes(cartItemId)
@@ -115,7 +109,6 @@ const Cart = () => {
     );
   };
 
-  // Handle select all toggle
   const handleSelectAll = (checked) => {
     if (checked) {
       setSelectedItems(cart.items.map((item) => item.cartItemId));
@@ -124,7 +117,6 @@ const Cart = () => {
     }
   };
 
-  // Loading state
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
@@ -133,7 +125,6 @@ const Cart = () => {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-6">
@@ -142,7 +133,6 @@ const Cart = () => {
     );
   }
 
-  // Empty cart state
   if (!cart || !cart.items || cart.items.length === 0) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-6 text-center">
@@ -157,7 +147,6 @@ const Cart = () => {
     );
   }
 
-  // Calculate totals for selected items
   const selectedCartItems = cart.items.filter((item) =>
     selectedItems.includes(item.cartItemId)
   );
@@ -165,11 +154,10 @@ const Cart = () => {
     (sum, item) => sum + item.variation.price * item.quantity,
     0
   );
-  const vat = subtotal * 0.1; // 10% VAT
-  const discount = 0; // Placeholder for discounts
+  const vat = subtotal * 0.1;
+  const discount = 0;
   const total = subtotal + vat - discount;
 
-  // Handle checkout navigation
   const handleCheckout = () => {
     if (selectedItems.length === 0) {
       message.warning(
@@ -267,7 +255,6 @@ const Cart = () => {
         </Space>
       </div>
 
-      {/* Summary */}
       <motion.div
         className="lg:w-80 bg-gray-100 p-4 rounded-lg shadow-sm lg:sticky lg:top-4 fixed bottom-0 left-0 right-0 z-10 lg:z-0 lg:bottom-auto lg:right-auto lg:left-auto lg:mt-6"
         initial={{ opacity: 0, y: 10 }}
