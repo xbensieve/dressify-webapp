@@ -19,6 +19,12 @@ const TermsAndPolicyPage = lazy(() =>
 const ProductDetailPage = lazy(() =>
   import("./pages/Product/ProductDetailPage")
 );
+const PaymentSuccessPage = lazy(() =>
+  import("./pages/Payment/PaymentSuccessPage")
+);
+const PaymentFailedPage = lazy(() =>
+  import("./pages/Payment/PaymentFailedPage")
+);
 const Cart = lazy(() => import("./pages/Cart/Cart"));
 const Loading = lazy(() => import("./components/Loading"));
 function App() {
@@ -40,6 +46,8 @@ function App() {
               <Route path="/search/:id" element={<ProductDetailPage />} />
               <Route path="/cart" element={<Cart />} />
             </Route>
+            <Route path="/success" element={<PaymentSuccessPage />} />
+            <Route path="/failed" element={<PaymentFailedPage />} />
             <Route path="*" element={<NotFoundPage />} />
             {/* Admin */}
             <Route
