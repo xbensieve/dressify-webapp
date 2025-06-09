@@ -1,38 +1,65 @@
+import { useEffect, useState } from "react";
+
 const PaymentFailedPage = () => {
+  const [countdown, setCountdown] = useState(10);
+  const redirectUrl = "/";
+  useEffect(() => {
+    const timerId = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerId);
+          window.location.href = redirectUrl;
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timerId);
+  }, []);
   return (
-    <div className="bg-gray-100 h-screen flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <div className="flex justify-center">
+    <div className="bg-gray-100 flex items-center justify-center min-h-screen px-4">
+      <div className="bg-white p-8 sm:p-12 rounded-xl shadow-2xl max-w-lg w-full text-center animate-fade-in-scale">
+        <div className="mx-auto flex items-center justify-center h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-red-100 mb-6">
           <svg
+            className="h-12 w-12 sm:h-16 sm:w-16 text-red-500"
+            fill="none"
+            stroke="currentColor"
             viewBox="0 0 24 24"
-            className="text-red-600 w-16 h-16"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
-              fill="currentColor"
-              d="M12,0A12,12,0,1,0,24,12,12.014,12.014,0,0,0,12,0ZM15.535,8.464a1,1,0,0,1,0,1.414L13.414,12l2.121,2.121a1,1,0,0,1-1.414,1.414L12,13.414l-2.121,2.121a1,1,0,1,1-1.414-1.414L10.586,12,8.464,9.879a1,1,0,0,1,1.414-1.414L12,10.586l2.121-2.121A1,1,0,0,1,15.535,8.464Z"
-            ></path>
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </div>
-        <div className="text-center mt-6">
-          <h3 className="text-2xl text-gray-900 font-semibold">
-            Payment Failed!
-          </h3>
-          <p className="text-gray-600 mt-2">
-            Unfortunately, your payment could not be processed.
+
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-4">
+          Payment Failed
+        </h1>
+
+        <p className="text-gray-600 text-lg mb-6">
+          Unfortunately, your transaction could not be completed. Please try
+          again or contact support.
+        </p>
+
+        <div className="bg-gray-50 p-4 rounded-md mb-8">
+          <p className="text-gray-700">
+            You will be automatically redirected to the homepage in{" "}
+            <span className="font-semibold text-red-600">{countdown}</span>{" "}
+            seconds.
           </p>
-          <p className="text-gray-600 mt-1">
-            Please try again or contact support for assistance.
-          </p>
-          <div className="mt-6">
-            <a
-              href="/product"
-              className="px-6 py-2 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-lg transition duration-300 ease-in-out"
-            >
-              Return
-            </a>
-          </div>
         </div>
+
+        <a
+          href={redirectUrl}
+          className="text-red-600 hover:text-red-700 font-medium transition-colors duration-200 underline"
+        >
+          Go to Homepage Now
+        </a>
       </div>
     </div>
   );
