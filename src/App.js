@@ -27,6 +27,7 @@ const PaymentFailedPage = lazy(() =>
 );
 const Cart = lazy(() => import("./pages/Cart/Cart"));
 const Loading = lazy(() => import("./components/Loading"));
+const ProfilePage = lazy(() => import("./pages/Common/Profile"));
 function App() {
   return (
     <div className="App">
@@ -45,10 +46,19 @@ function App() {
               <Route path="/search" element={<SearchPage />} />
               <Route path="/search/:id" element={<ProductDetailPage />} />
               <Route path="/cart" element={<Cart />} />
+              <Route
+                path="/profile"
+                element={
+                  <RequireRole allowedRoles="customer">
+                    <ProfilePage />
+                  </RequireRole>
+                }
+              ></Route>
             </Route>
             <Route path="/success" element={<PaymentSuccessPage />} />
             <Route path="/failed" element={<PaymentFailedPage />} />
             <Route path="*" element={<NotFoundPage />} />
+
             {/* Admin */}
             <Route
               path="/admin"

@@ -63,9 +63,7 @@ const Dashboard = () => {
         setUser(null);
         navigate("/login");
       },
-      onCancel() {
-        // Do nothing, modal closes automatically
-      },
+      onCancel() {},
     });
   };
 
