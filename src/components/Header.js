@@ -18,7 +18,6 @@ const Header = () => {
   ];
   const token = Cookies.get("access_token");
   useEffect(() => {
-    //decode token to get user info
     if (token) {
       const decodedToken = decodeAccessToken(token);
       const userInfo = {
@@ -52,6 +51,14 @@ const Header = () => {
             loginApi.logout();
             setUser(null);
             navigate("/login");
+          },
+        },
+        {
+          text: "Profile",
+          href: "/profile",
+          onClick: (e) => {
+            e.preventDefault();
+            navigate("/profile");
           },
         },
       ]
