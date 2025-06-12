@@ -10,12 +10,14 @@ import {
   message,
   Spin,
   Checkbox,
+  Empty,
 } from "antd";
 import cartApi from "../../api/cartApi";
 import { AuthContext } from "../../context/AuthContext";
 import Cookies from "js-cookie";
 import decodeAccessToken from "../../utils/decodeJwt";
 import orderApi from "../../api/orderApi";
+import userApi from "../../api/userApi";
 
 const { Title, Text } = Typography;
 
@@ -138,7 +140,11 @@ const Cart = () => {
   if (!cart || !cart.items || cart.items.length === 0) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-6 text-center">
-        <Alert message="Your cart is empty." type="info" showIcon />
+        <Empty
+          description="There are no items in your shopping cart"
+          className="text-gray-500 py-10"
+          imageStyle={{ height: 80 }}
+        />
         <Link
           to="/"
           className="text-blue-600 hover:underline mt-4 inline-block"
@@ -165,6 +171,16 @@ const Cart = () => {
       message.warning(
         "Please select at least one item to proceed to checkout."
       );
+      return;
+    }
+    try {
+      const userData = await userApi.getUser();
+      if (!userData.addresses || userData.addresses.length === 0) {
+        message.warning("Please add a shipping address before checkout.");
+        return;
+      }
+    } catch (err) {
+      message.error("Failed to verify address. Please try again.");
       return;
     }
     setCheckoutLoading(true);

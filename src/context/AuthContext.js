@@ -13,7 +13,6 @@ export const AuthProvider = ({ children }) => {
         const token = Cookies.get("access_token");
         const decodedToken = decodeAccessToken(token);
         if (decodedToken) {
-          console.log("Decoded Token:", decodedToken);
           setUser({
             id: decodedToken.id,
             email: decodedToken.email,

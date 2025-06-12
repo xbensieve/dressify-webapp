@@ -77,7 +77,6 @@ const SearchBar = memo(() => {
         >
           <Input
             placeholder="Search for products"
-            prefix={<SearchOutlined className="text-black" />}
             suffix={
               <Button
                 type="text"
