@@ -17,6 +17,8 @@ import { ShoppingCartOutlined } from "@ant-design/icons";
 import productApi from "../../api/productApi";
 import cartApi from "../../api/cartApi";
 import orderApi from "../../api/orderApi";
+import userApi from "../../api/userApi";
+import Cookies from "js-cookie";
 const { Title, Text } = Typography;
 
 const ProductDetailPage = () => {
@@ -30,7 +32,7 @@ const ProductDetailPage = () => {
   const [quantity, setQuantity] = useState(1);
   const [stockStatus, setStockStatus] = useState(null);
   const [availableStock, setAvailableStock] = useState(0);
-
+  const token = Cookies.get("access_token");
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -84,6 +86,20 @@ const ProductDetailPage = () => {
   const handleBuyNow = async () => {
     if (!selectedVariation) {
       message.error("Please select a variation.");
+      return;
+    }
+    try {
+      if (!token) {
+        message.warning("Please login first!");
+        return;
+      }
+      const userData = await userApi.getUser();
+      if (!userData.addresses || userData.addresses.length === 0) {
+        message.warning("Please add a shipping address before checkout.");
+        return;
+      }
+    } catch (err) {
+      message.error("Failed to verify address. Please try again.");
       return;
     }
     setBuyNowLoading(true);

@@ -10,6 +10,7 @@ import {
   Empty,
   Drawer,
   Button,
+  Pagination,
 } from "antd";
 import {
   EnvironmentOutlined,
@@ -25,6 +26,13 @@ const { Title, Text } = Typography;
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalProducts: 0,
+  });
+  const pageSize = 12;
   const keyword = searchParams.get("keyword") || "";
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -32,7 +40,8 @@ const SearchPage = () => {
   const [isFilterDrawerVisible, setIsFilterDrawerVisible] = useState(false);
   const [filters, setFilters] = useState({
     category: "",
-    priceRange: [0, 1000],
+    minPrice: 0,
+    maxPrice: 1000,
     size: "",
     color: "",
     sort: "latest",
@@ -47,9 +56,20 @@ const SearchPage = () => {
       try {
         setLoading(true);
         setError("");
-        const params = { keyword, ...filters };
+        const params = {
+          keyword,
+          category: filters.category,
+          minPrice: filters.minPrice,
+          maxPrice: filters.maxPrice,
+          sortBy: filters.sort,
+          page: currentPage,
+          limit: pageSize,
+        };
         const res = await productApi.searchProducts(params);
         setProducts(res.data || []);
+        setPagination(
+          res.pagination || { currentPage: 1, totalPages: 1, totalProducts: 0 }
+        );
       } catch (err) {
         setError(err.message || "Failed to fetch products");
       } finally {
@@ -58,8 +78,29 @@ const SearchPage = () => {
     };
 
     fetchProducts();
-  }, [keyword, filters]);
+  }, [keyword, filters, currentPage, pageSize]);
+  // Client-side filtering
+  const filteredProducts = products
+    .filter((product) => {
+      // Price filter
+      const price = product.price || 0;
+      if (filters.minPrice && price < filters.minPrice) return false;
+      if (filters.maxPrice && price > filters.maxPrice) return false;
+      // Size filter
+      if (filters.size && product.size !== filters.size) return false;
+      // Color filter
+      if (filters.color && product.color !== filters.color) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (filters.sort === "lowToHigh") return a.price - b.price;
+      if (filters.sort === "highToLow") return b.price - a.price;
+      return 0; // Default: no sort or "latest"
+    });
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, keyword]);
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
     setSearchParams({ keyword, ...newFilters });
@@ -121,10 +162,12 @@ const SearchPage = () => {
               )}
               <HorizontalFilterBar
                 filters={filters}
-                handleFilterChange={handleFilterChange}
+                handleFilterChange={(key, value) =>
+                  setFilters({ ...filters, [key]: value })
+                }
               />
               <Row gutter={[16, 16]}>
-                {products.map((product) => (
+                {filteredProducts.map((product) => (
                   <Col xs={12} sm={12} md={8} lg={6} key={product._id}>
                     <Link to={`/search/${product._id}`}>
                       <div className="group relative h-full border border-gray-300">
@@ -200,55 +243,14 @@ const SearchPage = () => {
                 ))}
               </Row>
               {/* Pagination Mock */}
-              <div className="mt-4 flex items-center justify-center sm:justify-start lg:justify-end">
-                <Button
-                  className="rounded-none text-gray-500 bg-transparent border-none hover:text-gray-700"
-                  disabled
-                >
-                  {"<"}
-                </Button>
-                <Button
-                  className="rounded-none bg-red-500 text-white mx-1"
-                  disabled
-                >
-                  1
-                </Button>
-                <Button
-                  className="rounded-none text-gray-500 bg-transparent border-none hover:text-gray-700 mx-1"
-                  disabled
-                >
-                  2
-                </Button>
-                <Button
-                  className="rounded-none text-gray-500 bg-transparent border-none hover:text-gray-700 mx-1"
-                  disabled
-                >
-                  3
-                </Button>
-                <Button
-                  className="rounded-none text-gray-500 bg-transparent border-none hover:text-gray-700 mx-1"
-                  disabled
-                >
-                  4
-                </Button>
-                <Button
-                  className="rounded-none text-gray-500 bg-transparent border-none hover:text-gray-700 mx-1"
-                  disabled
-                >
-                  5
-                </Button>
-                <Button
-                  className="rounded-none text-gray-500 bg-transparent border-none hover:text-gray-700 mx-1"
-                  disabled
-                >
-                  ...
-                </Button>
-                <Button
-                  className="rounded-none text-gray-500 bg-transparent border-none hover:text-gray-700"
-                  disabled
-                >
-                  {">"}
-                </Button>
+              <div className="mt-4 flex items-center justify-center">
+                <Pagination
+                  current={pagination.currentPage}
+                  pageSize={pageSize}
+                  total={pagination.totalProducts}
+                  onChange={setCurrentPage}
+                  showSizeChanger={false}
+                />
               </div>
             </div>
           </div>

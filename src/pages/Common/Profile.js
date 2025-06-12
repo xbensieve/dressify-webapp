@@ -15,8 +15,14 @@ import {
   Drawer,
   Divider,
   Input,
+  Modal,
+  Form,
 } from "antd";
-import { MenuOutlined } from "@ant-design/icons";
+import {
+  MenuOutlined,
+  PlusOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
 
 const { Text, Title } = Typography;
 
@@ -33,7 +39,11 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [form] = Form.useForm();
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editAddress, setEditAddress] = useState(null);
+  const [editForm] = Form.useForm();
   // States for orders and pagination
   const [orders, setOrders] = useState([]);
   const [page, setPage] = useState(1);
@@ -157,7 +167,103 @@ const ProfilePage = () => {
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
   };
-
+  // Add Address
+  const handleAddAddress = async (values) => {
+    try {
+      const response = await userApi.createAddress(values);
+      if (response.success) {
+        message.success("Address added successfully!");
+        // Refetch user data for updated addresses
+        const userRes = await userApi.getUser();
+        setUser((prev) => ({
+          ...prev,
+          addresses: Array.isArray(userRes.addresses) ? userRes.addresses : [],
+        }));
+        setIsModalOpen(false);
+        form.resetFields();
+      } else {
+        message.error(response.message || "Failed to add address.");
+      }
+    } catch (err) {
+      message.error("An error occurred while adding address.");
+    }
+  };
+  // Edit Address
+  const handleEditClick = (address) => {
+    setEditAddress(address);
+    setEditModalOpen(true);
+    editForm.setFieldsValue(address);
+  };
+  const handleEditAddress = async (values) => {
+    try {
+      const response = await userApi.editAddress(editAddress._id, values);
+      if (response.success) {
+        message.success("Address updated!");
+        // Refetch user data for updated addresses
+        const userRes = await userApi.getUser();
+        setUser((prev) => ({
+          ...prev,
+          addresses: Array.isArray(userRes.addresses) ? userRes.addresses : [],
+        }));
+        setEditModalOpen(false);
+        setEditAddress(null);
+      } else {
+        message.error(response.message || "Failed to update address.");
+      }
+    } catch (err) {
+      message.error("An error occurred while updating address.");
+    }
+  };
+  // Delete Address
+  const handleDeleteAddress = (addressId) => {
+    Modal.confirm({
+      title: "Delete Address",
+      icon: <ExclamationCircleOutlined />,
+      content: "Are you sure you want to delete this address?",
+      okText: "Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: async () => {
+        try {
+          const response = await userApi.deleteAddress(addressId);
+          if (response.success) {
+            message.success("Address deleted!");
+            // Refetch user data for updated addresses
+            const userRes = await userApi.getUser();
+            setUser((prev) => ({
+              ...prev,
+              addresses: Array.isArray(userRes.addresses)
+                ? userRes.addresses
+                : [],
+            }));
+          } else {
+            message.error(response.message || "Failed to delete address.");
+          }
+        } catch (err) {
+          message.error("An error occurred while deleting address.");
+        }
+      },
+    });
+  };
+  // Set as Default
+  const handleSetDefault = async (addressId) => {
+    try {
+      const response = await userApi.setDefaultAddress(addressId);
+      if (response.success) {
+        message.success("Default address set!");
+        // Refetch user data for updated addresses
+        const userRes = await userApi.getUser();
+        setUser((prev) => ({
+          ...prev,
+          addresses: Array.isArray(userRes.addresses) ? userRes.addresses : [],
+        }));
+      } else {
+        message.error(response.message || "Failed to set default address.");
+      }
+    } catch (err) {
+      message.error("An error occurred while setting default address.");
+    }
+  };
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-white">
@@ -388,9 +494,10 @@ const ProfilePage = () => {
             </Title>
             <button
               type="button"
-              className="bg-black text-white px-4 py-2 hover:opacity-80 transition-opacity duration-200 text-sm rounded-none"
+              className="bg-black text-white px-4 py-2 hover:opacity-80 transition-opacity duration-200 text-sm rounded-none flex items-center gap-2"
+              onClick={() => setIsModalOpen(true)}
             >
-              + Add New Address
+              <PlusOutlined /> Add New Address
             </button>
           </div>
           <Divider
@@ -423,6 +530,7 @@ const ProfilePage = () => {
                           <button
                             type="button"
                             className="text-sm text-blue-700"
+                            onClick={() => handleEditClick(address)}
                           >
                             Edit
                           </button>
@@ -430,10 +538,18 @@ const ProfilePage = () => {
                             <button
                               type="button"
                               className="bg-white text-gray-600 px-4 py-2 border border-gray-300 hover:opacity-80 transition-opacity duration-200 text-sm rounded-none"
+                              onClick={() => handleSetDefault(address._id)}
                             >
                               Set as default
                             </button>
                           )}
+                          <button
+                            type="button"
+                            className="text-sm text-red-600"
+                            onClick={() => handleDeleteAddress(address._id)}
+                          >
+                            Delete
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -447,7 +563,126 @@ const ProfilePage = () => {
             </div>
           )}
         </Card>
-
+        {/* Add Address Modal */}
+        <Modal
+          title="Add New Address"
+          open={isModalOpen}
+          onCancel={() => setIsModalOpen(false)}
+          onOk={() => form.submit()}
+          okText="Add"
+          cancelText="Cancel"
+          destroyOnClose
+        >
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleAddAddress}
+            initialValues={{
+              street: "",
+              city: "",
+              state: "",
+              country: "",
+              postal_code: "",
+            }}
+          >
+            <Form.Item
+              label="Street"
+              name="street"
+              rules={[{ required: true, message: "Please enter street" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="City"
+              name="city"
+              rules={[{ required: true, message: "Please enter city" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="State"
+              name="state"
+              rules={[{ required: true, message: "Please enter state" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Country"
+              name="country"
+              rules={[{ required: true, message: "Please enter country" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Postal Code"
+              name="postal_code"
+              rules={[{ required: true, message: "Please enter postal code" }]}
+            >
+              <Input />
+            </Form.Item>
+          </Form>
+        </Modal>
+        {/* Edit Address Modal */}
+        <Modal
+          title="Edit Address"
+          open={editModalOpen}
+          onCancel={() => setEditModalOpen(false)}
+          onOk={() => editForm.submit()}
+          okText="Save"
+          cancelText="Cancel"
+          destroyOnClose
+        >
+          <Form
+            form={editForm}
+            layout="vertical"
+            onFinish={handleEditAddress}
+            initialValues={
+              editAddress || {
+                street: "",
+                city: "",
+                state: "",
+                country: "",
+                postal_code: "",
+              }
+            }
+          >
+            <Form.Item
+              label="Street"
+              name="street"
+              rules={[{ required: true, message: "Please enter street" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="City"
+              name="city"
+              rules={[{ required: true, message: "Please enter city" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="State"
+              name="state"
+              rules={[{ required: true, message: "Please enter state" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Country"
+              name="country"
+              rules={[{ required: true, message: "Please enter country" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="Postal Code"
+              name="postal_code"
+              rules={[{ required: true, message: "Please enter postal code" }]}
+            >
+              <Input />
+            </Form.Item>
+          </Form>
+        </Modal>
         <Card
           className="border border-gray-200 shadow-sm rounded-lg"
           id="purchases"
