@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import userApi from "../../api/userApi";
+import orderApi from "../../api/orderApi"; // Import the orderApi
 import {
   Card,
   Button,
   Radio,
   DatePicker,
-  Upload,
   Spin,
   Alert,
   List,
@@ -16,7 +16,7 @@ import {
   Divider,
   Input,
 } from "antd";
-import { UploadOutlined, MenuOutlined } from "@ant-design/icons";
+import { MenuOutlined } from "@ant-design/icons";
 
 const { Text, Title } = Typography;
 
@@ -34,6 +34,16 @@ const ProfilePage = () => {
   const [error, setError] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+  // States for orders and pagination
+  const [orders, setOrders] = useState([]);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(2); // Match the limit from your API response
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
+  const [ordersError, setOrdersError] = useState(null);
+  const observerRef = useRef(null); // Ref for the intersection observer
+
+  // Fetch user data
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -59,6 +69,58 @@ const ProfilePage = () => {
     fetchUserData();
   }, []);
 
+  // Fetch orders
+  const fetchOrders = async (pageToFetch) => {
+    try {
+      setIsLoadingOrders(true);
+      const response = await orderApi.getOrdersByUser(pageToFetch, limit);
+      if (response.success) {
+        setOrders((prev) =>
+          pageToFetch === 1 ? response.orders : [...prev, ...response.orders]
+        );
+        setTotalPages(response.totalPages);
+        setPage(pageToFetch);
+      } else {
+        setOrdersError("Failed to fetch orders");
+      }
+    } catch (err) {
+      setOrdersError(`Failed to fetch orders: ${err.message}`);
+    } finally {
+      setIsLoadingOrders(false);
+    }
+  };
+
+  // Initial fetch for orders
+  useEffect(() => {
+    fetchOrders(1);
+  }, []);
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          !isLoadingOrders &&
+          page < totalPages
+        ) {
+          fetchOrders(page + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observer.unobserve(observerRef.current);
+      }
+    };
+  }, [isLoadingOrders, page, totalPages]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUser((prev) => ({ ...prev, [name]: value }));
@@ -70,14 +132,6 @@ const ProfilePage = () => {
 
   const handleGenderChange = (e) => {
     setUser((prev) => ({ ...prev, gender: e.target.value }));
-  };
-
-  const handleImageUpload = (info) => {
-    if (info.file.status === "done") {
-      message.success(`${info.file.name} uploaded successfully`);
-    } else if (info.file.status === "error") {
-      message.error(`${info.file.name} upload failed.`);
-    }
   };
 
   const handleSave = async () => {
@@ -152,7 +206,6 @@ const ProfilePage = () => {
       </div>
 
       <Drawer
-        title={user.username || "User"}
         placement="left"
         onClose={toggleDrawer}
         open={isDrawerOpen}
@@ -193,12 +246,12 @@ const ProfilePage = () => {
         </ul>
       </Drawer>
       <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-white">
-        <div className="md:hidden mb-6">
+        <div className="md:hidden mb-6 flex justify-start">
           <Button
             type="text"
-            className="text-gray-900 hover:text-orange-500"
+            className="text-gray-900 hover:text-orange-500 font-medium text-lg px-3 py-2 rounded-md transition-colors duration-200"
             onClick={toggleDrawer}
-            icon={<MenuOutlined />}
+            icon={<MenuOutlined className="mr-2" />}
             size="large"
           >
             Menu
@@ -365,8 +418,6 @@ const ProfilePage = () => {
                           </Text>
                         )}
                       </td>
-
-                      {/* Actions Column */}
                       <td className="py-4 align-top text-right w-1/4">
                         <div className="flex flex-col sm:flex-row sm:justify-end sm:items-center gap-2">
                           <button
@@ -405,10 +456,174 @@ const ProfilePage = () => {
           <Title level={3} className="text-gray-900 mb-4">
             My Purchases
           </Title>
-          <Empty
-            description="No purchase history found"
-            className="text-gray-500"
-          />
+          {ordersError && (
+            <Alert
+              message={ordersError}
+              type="error"
+              showIcon
+              className="mb-4"
+            />
+          )}
+          {orders.length > 0 ? (
+            <List
+              itemLayout="vertical"
+              dataSource={orders}
+              renderItem={(order) => (
+                <List.Item
+                  key={order._id}
+                  className="border-b border-gray-200 last:border-b-0 py-5 px-4 sm:px-6 hover:bg-gray-50 transition-colors duration-300 rounded-lg mb-4 shadow-sm"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
+                    <div className="flex-1">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
+                        <div>
+                          <Text
+                            strong
+                            className="text-lg sm:text-xl text-gray-900"
+                          >
+                            Order #{order._id.slice(-8)}
+                          </Text>
+                          <br />
+                          <Text
+                            type="secondary"
+                            className="text-sm sm:text-base"
+                          >
+                            Placed on:{" "}
+                            {new Date(order.createdAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )}
+                          </Text>
+                        </div>
+                        <div className="mt-2 sm:mt-0">
+                          <Text
+                            className={`inline-block px-3 py-1.5 rounded-full text-sm font-medium ${
+                              order.order_status === "completed"
+                                ? "bg-green-100 text-green-700"
+                                : order.order_status === "pending"
+                                ? "bg-yellow-100 text-yellow-700"
+                                : "bg-red-100 text-red-700"
+                            }`}
+                          >
+                            {order.order_status.charAt(0).toUpperCase() +
+                              order.order_status.slice(1)}
+                          </Text>
+                        </div>
+                      </div>
+                      <Text className="text-lg font-semibold text-gray-900 block mb-4">
+                        Total: ${order.total_amount.toFixed(2)}
+                      </Text>
+                      {/* Order Details */}
+                      <div className="space-y-5">
+                        {order.details.map((detail) => (
+                          <div
+                            key={detail._id}
+                            className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 bg-gray-50 p-4 rounded-md hover:bg-gray-100 transition-colors duration-200"
+                          >
+                            {/* Product Image */}
+                            <div className="flex-shrink-0 relative">
+                              {detail.images && detail.images.length > 0 ? (
+                                <img
+                                  src={detail.images[0].imageUrl}
+                                  alt={
+                                    detail.images[0].altText ||
+                                    detail.product_id.name
+                                  }
+                                  className="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-lg border border-gray-200 shadow-sm"
+                                  onError={(e) => {
+                                    e.target.src =
+                                      "https://via.placeholder.com/112?text=No+Image";
+                                  }}
+                                />
+                              ) : (
+                                <div className="w-24 h-24 sm:w-28 sm:h-28 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200 shadow-sm">
+                                  <Text
+                                    type="secondary"
+                                    className="text-xs text-center"
+                                  >
+                                    No Image
+                                  </Text>
+                                </div>
+                              )}
+                            </div>
+                            {/* Product Details */}
+                            <div className="flex-1">
+                              <Text
+                                strong
+                                className="text-base sm:text-lg text-gray-900 hover:text-blue-600 transition-colors"
+                              >
+                                {detail.product_id.name}
+                              </Text>
+                              <br />
+                              <Text type="secondary" className="text-sm">
+                                {detail.variation_id.size} -{" "}
+                                {detail.variation_id.color}
+                              </Text>
+                              <br />
+                              <div className="flex items-center gap-4 mt-1">
+                                <Text className="text-sm">
+                                  Quantity:{" "}
+                                  <span className="font-medium">
+                                    {detail.quantity}
+                                  </span>
+                                </Text>
+                                <Text className="text-sm">
+                                  Price:{" "}
+                                  <span className="font-medium">
+                                    ${detail.price_at_purchase.toFixed(2)}
+                                  </span>
+                                </Text>
+                              </div>
+                              <Text
+                                type="secondary"
+                                className="text-sm block mt-2 line-clamp-3 sm:line-clamp-2"
+                                title={detail.product_id.description}
+                              >
+                                {detail.product_id.description}
+                              </Text>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Action Buttons */}
+                    <div className="mt-4 sm:mt-0 sm:ml-6 flex-shrink-0 flex flex-col gap-2">
+                      <Button
+                        type="primary"
+                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-md px-4 py-2 text-sm"
+                      >
+                        View Details
+                      </Button>
+                      <Button
+                        type="default"
+                        className="border-gray-300 text-gray-700 hover:text-gray-900 rounded-md px-4 py-2 text-sm"
+                      >
+                        Track Order
+                      </Button>
+                    </div>
+                  </div>
+                </List.Item>
+              )}
+            />
+          ) : (
+            <Empty
+              description="No purchase history found"
+              className="text-gray-500 py-10"
+              imageStyle={{ height: 80 }}
+            />
+          )}
+          {isLoadingOrders && (
+            <div className="flex justify-center py-4">
+              <Spin />
+            </div>
+          )}
+          {page < totalPages && <div ref={observerRef} className="h-10"></div>}
         </Card>
       </div>
     </div>

@@ -15,11 +15,13 @@ import cartApi from "../../api/cartApi";
 import { AuthContext } from "../../context/AuthContext";
 import Cookies from "js-cookie";
 import decodeAccessToken from "../../utils/decodeJwt";
+import orderApi from "../../api/orderApi";
 
 const { Title, Text } = Typography;
 
 const Cart = () => {
   const { user, setUser } = useContext(AuthContext);
+  const [checkoutLoading, setCheckoutLoading] = useState(false); // Add loading state
   const navigate = useNavigate();
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -158,14 +160,33 @@ const Cart = () => {
   const discount = 0;
   const total = subtotal + vat - discount;
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (selectedItems.length === 0) {
       message.warning(
         "Please select at least one item to proceed to checkout."
       );
       return;
     }
-    navigate("/checkout", { state: { selectedItems } });
+    setCheckoutLoading(true);
+    try {
+      const res = await orderApi.createOrderByCart({
+        cartItemIds: selectedItems,
+      });
+      if (res.success && res.orderId) {
+        const paymentRes = await orderApi.createPaymentUrl(res.orderId);
+        if (paymentRes.success && paymentRes.paymentUrl) {
+          window.location.href = paymentRes.paymentUrl;
+        } else {
+          message.error(paymentRes.message || "Failed to get payment URL.");
+        }
+      } else {
+        message.error(res.message || "Failed to place order.");
+      }
+    } catch (error) {
+      message.error(error.message || "Failed to place order.");
+    } finally {
+      setCheckoutLoading(false);
+    }
   };
 
   return (
@@ -288,6 +309,7 @@ const Cart = () => {
             size="large"
             className="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold rounded-md mt-4"
             onClick={handleCheckout}
+            loading={checkoutLoading}
           >
             Proceed to Checkout
           </Button>

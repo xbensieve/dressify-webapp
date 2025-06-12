@@ -16,10 +16,12 @@ import {
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import productApi from "../../api/productApi";
 import cartApi from "../../api/cartApi";
+import orderApi from "../../api/orderApi";
 const { Title, Text } = Typography;
 
 const ProductDetailPage = () => {
   const { id } = useParams();
+  const [buyNowLoading, setBuyNowLoading] = useState(false);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -79,7 +81,43 @@ const ProductDetailPage = () => {
       message.error("Error adding product to cart");
     }
   };
-
+  const handleBuyNow = async () => {
+    if (!selectedVariation) {
+      message.error("Please select a variation.");
+      return;
+    }
+    setBuyNowLoading(true);
+    try {
+      const variation = product.variations.find(
+        (v) => v._id === selectedVariation
+      );
+      const payload = {
+        products: [
+          {
+            _id: variation._id,
+            quantity,
+            price: variation.price,
+            product_id: product._id,
+          },
+        ],
+      };
+      const res = await orderApi.createOrder(payload);
+      if (res.success && res.orderId) {
+        const paymentRes = await orderApi.createPaymentUrl(res.orderId);
+        if (paymentRes.success && paymentRes.paymentUrl) {
+          window.location.href = paymentRes.paymentUrl;
+        } else {
+          message.error(paymentRes.message || "Failed to get payment URL.");
+        }
+      } else {
+        message.error(res.message || "Failed to place order.");
+      }
+    } catch (error) {
+      message.error(error.message || "Failed to place order.");
+    } finally {
+      setBuyNowLoading(false);
+    }
+  };
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -265,9 +303,14 @@ const ProductDetailPage = () => {
                       type="primary"
                       size="large"
                       className="w-full sm:w-1/2 bg-black rounded-none  border-none font-semibold text-white transition-all duration-300 transform"
-                      disabled={isOutOfStock}
+                      disabled={isOutOfStock || buyNowLoading}
+                      loading={buyNowLoading}
+                      onClick={handleBuyNow}
                     >
-                      Buy Now ${product.price?.toFixed(2)}
+                      Buy Now $
+                      {product.variations
+                        .find((v) => v._id === selectedVariation)
+                        ?.price?.toFixed(2) || product.price?.toFixed(2)}
                     </Button>
                   </div>
                 </div>
